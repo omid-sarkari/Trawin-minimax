@@ -4,23 +4,12 @@
   "private": true,
   "workspaces": ["packages/*"],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
+    "build": "npm run build --workspaces",
     "build:behavior-intelligence": "npm run build --workspace=behavior-intelligence",
+    "test": "npm run test --workspaces",
     "test:behavior-intelligence": "npm run test --workspace=behavior-intelligence"
   },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.39.0",
-    "next": "16.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
   "devDependencies": {
-    "@types/node": "^20.11.0",
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
-    "typescript": "^5.3.0"
+    "typescript": "^5.3.3"
   }
 }
