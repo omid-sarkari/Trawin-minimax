@@ -1,50 +1,68 @@
-// Burst Insertion Detector - Detects rapid code insertion
-export const burstInsertionDetectorConfig = {
-  name: 'burst_insertion',
-  description: 'Detects when large amounts of code are inserted rapidly',
-  version: '1.0.0',
-  enabled: true,
-  thresholds: { minLines: 20, maxTimeMs: 5000, highLines: 50, criticalLines: 100 }
-};
+import { DetectorFunction, DetectorResult } from '../types/detector'
+import { RawEditorEvent } from '../types/raw-events'
 
-export function burstInsertionDetector(input: { editorEvents: any[]; codingEvents: any[]; clipboardMarkers: any[]; snapshots: any[] }): any[] {
-  const results: any[] = [];
-  interface InsertionEvent { time: number; linesAdded: number; source: string; }
-  const insertionEvents: InsertionEvent[] = [];
-  
-  for (const event of input.editorEvents) {
-    if (event.eventType === 'insert' && event.createdAt) {
-      const payload = event.payload as { linesAdded?: number } | undefined;
-      insertionEvents.push({ time: new Date(event.createdAt).getTime(), linesAdded: payload?.linesAdded || 1, source: 'editor' });
+const DEFAULT_CONFIG = { windowSizeMs: 5000, minCharsInWindow: 50, cpsThreshold: 20, stdDevMultiplier: 3 }
+
+function extractInsertionEvents(editorEvents: RawEditorEvent[]): Array<{ timestamp: number; charCount: number }> {
+  const insertions: Array<{ timestamp: number; charCount: number }> = []
+  for (const event of editorEvents) {
+    if (event.eventType === 'insert' || event.eventType === 'insertText') {
+      const payload = event.payload as Record<string, unknown> | null
+      let charCount = 0
+      if (payload && typeof payload.text === 'string') charCount = payload.text.length
+      else if (payload && Array.isArray(payload.lines)) {
+        charCount = (payload.lines as unknown[]).reduce((sum, line) => sum + (typeof line === 'string' ? line.length : 0), 0)
+      }
+      if (charCount > 0) insertions.push({ timestamp: new Date(event.createdAt).getTime(), charCount })
     }
   }
-  for (const event of input.codingEvents) {
-    if (event.eventType === 'code_submitted' && event.createdAt) {
-      const metadata = event.metadata as { linesAdded?: number } | undefined;
-      insertionEvents.push({ time: new Date(event.createdAt).getTime(), linesAdded: metadata?.linesAdded || 1, source: 'coding_event' });
-    }
-  }
-  insertionEvents.sort((a, b) => a.time - b.time);
-  
-  for (let i = 0; i < insertionEvents.length; i++) {
-    let totalLines = insertionEvents[i].linesAdded, startTime = insertionEvents[i].time, eventCount = 1;
-    for (let j = i + 1; j < insertionEvents.length; j++) {
-      const timeDiff = insertionEvents[j].time - startTime;
-      if (timeDiff <= burstInsertionDetectorConfig.thresholds.maxTimeMs) {
-        totalLines += insertionEvents[j].linesAdded; eventCount++;
-      } else break;
-    }
-    if (totalLines >= burstInsertionDetectorConfig.thresholds.minLines) {
-      const durationMs = insertionEvents[i + eventCount - 1].time - startTime;
-      const probability = Math.min(1, totalLines / burstInsertionDetectorConfig.thresholds.minLines * 0.7 + 
-        (burstInsertionDetectorConfig.thresholds.maxTimeMs - durationMs) / burstInsertionDetectorConfig.thresholds.maxTimeMs * 0.3);
-      results.push({
-        detectionType: 'burst_insertion',
-        probability,
-        result: { totalLines, durationMs, eventCount, linesPerSecond: totalLines / (durationMs / 1000) }
-      });
-      i += eventCount - 1;
-    }
-  }
-  return results;
+  return insertions.sort((a, b) => a.timestamp - b.timestamp)
 }
+
+function calculateWindowCPS(window: Array<{ timestamp: number; charCount: number }>): number {
+  if (window.length < 2) return 0
+  const totalChars = window.reduce((sum, w) => sum + w.charCount, 0)
+  const durationMs = window[window.length - 1].timestamp - window[0].timestamp
+  return durationMs > 0 ? totalChars / (durationMs / 1000) : 0
+}
+
+export const burstInsertionDetector: DetectorFunction = (input): DetectorResult => {
+  const { editorEvents } = input
+  const insertions = extractInsertionEvents(editorEvents)
+  if (insertions.length < 2) return { detectionType: 'burst_insertion', probability: 0, result: { totalInsertions: insertions.length } }
+
+  const windows: Array<Array<{ timestamp: number; charCount: number }>> = []
+  let currentWindow: Array<{ timestamp: number; charCount: number }> = []
+  for (const insertion of insertions) {
+    if (currentWindow.length === 0) currentWindow.push(insertion)
+    else {
+      const lastTimestamp = currentWindow[currentWindow.length - 1].timestamp
+      if (insertion.timestamp - lastTimestamp <= DEFAULT_CONFIG.windowSizeMs) currentWindow.push(insertion)
+      else { if (currentWindow.length >= 1) windows.push([...currentWindow]); currentWindow = [insertion] }
+    }
+  }
+  if (currentWindow.length >= 1) windows.push(currentWindow)
+
+  const cpsValues = windows.map(w => calculateWindowCPS(w))
+  const maxCPS = Math.max(...cpsValues, 0)
+  const meanCPS = cpsValues.reduce((a, b) => a + b, 0) / cpsValues.length
+  const variance = cpsValues.reduce((sum, val) => sum + Math.pow(val - meanCPS, 2), 0) / cpsValues.length
+  const stdDevCPS = Math.sqrt(variance)
+  const burstWindows = cpsValues.filter(c => c >= DEFAULT_CONFIG.cpsThreshold).length
+
+  let probability = 0
+  if (maxCPS > DEFAULT_CONFIG.cpsThreshold) {
+    const normalizedSpeed = maxCPS / DEFAULT_CONFIG.cpsThreshold
+    const deviation = (maxCPS - meanCPS) / (stdDevCPS || 1)
+    probability = Math.min(1, (normalizedSpeed - 1) * 0.5 + (deviation / DEFAULT_CONFIG.stdDevMultiplier) * 0.5)
+    probability = Math.max(0, probability)
+  }
+
+  return {
+    detectionType: 'burst_insertion',
+    probability: Math.round(probability * 100) / 100,
+    result: { maxCPS: Math.round(maxCPS * 100) / 100, meanCPS: Math.round(meanCPS * 100) / 100, stdDevCPS: Math.round(stdDevCPS * 100) / 100, burstWindows, totalWindows: windows.length }
+  }
+}
+
+export default burstInsertionDetector

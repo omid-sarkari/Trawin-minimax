@@ -1,27 +1,42 @@
-// Detector Registry
-export * from './paste-ratio.detector';
-export * from './burst-insertion.detector';
-export * from './typing-rhythm.detector';
-export * from './edit-locality.detector';
-
-import { DetectorRegistry } from '../types/detector';
+import pasteRatioDetector from './paste-ratio.detector'
+import burstInsertionDetector from './burst-insertion.detector'
+import typingRhythmDetector from './typing-rhythm.detector'
+import editLocalityDetector from './edit-locality.detector'
+import { DetectorFunction, DetectorRegistry, DetectorResult, DetectorInput } from '../types/detector'
 
 const detectorRegistry: DetectorRegistry = {
-  paste_ratio: { detector: require('./paste-ratio.detector').pasteRatioDetector, config: require('./paste-ratio.detector').pasteRatioDetectorConfig },
-  burst_insertion: { detector: require('./burst-insertion.detector').burstInsertionDetector, config: require('./burst-insertion.detector').burstInsertionDetectorConfig },
-  typing_rhythm: { detector: require('./typing-rhythm.detector').typingRhythmDetector, config: require('./typing-rhythm.detector').typingRhythmDetectorConfig },
-  edit_locality: { detector: require('./edit-locality.detector').editLocalityDetector, config: require('./edit-locality.detector').editLocalityDetectorConfig }
-};
+  paste_ratio: pasteRatioDetector,
+  burst_insertion: burstInsertionDetector,
+  typing_rhythm: typingRhythmDetector,
+  edit_locality: editLocalityDetector
+}
 
-export function getDetectorRegistry(): DetectorRegistry { return detectorRegistry; }
-export function getEnabledDetectors(): string[] { return Object.entries(detectorRegistry).filter(([_, v]) => v.config.enabled).map(([name]) => name); }
+export function getDetectorNames(): string[] { return Object.keys(detectorRegistry) }
 
-export function runAllDetectors(input: { editorEvents: any[]; codingEvents: any[]; clipboardMarkers: any[]; snapshots: any[] }): any[] {
-  const results: any[] = [];
-  for (const [_, { detector, config }] of Object.entries(detectorRegistry)) {
-    if (config.enabled) {
-      try { results.push(...detector(input)); } catch (e) { console.error(`Error in ${_}:`, e); }
+export function getDetector(name: string): DetectorFunction | undefined { return detectorRegistry[name] }
+
+export async function runAllDetectors(input: DetectorInput): Promise<DetectorResult[]> {
+  const results: DetectorResult[] = []
+  for (const [name, detector] of Object.entries(detectorRegistry)) {
+    try {
+      const result = await detector(input)
+      results.push(result)
+    } catch (error) {
+      results.push({ detectionType: name, probability: 0, result: { error: error instanceof Error ? error.message : String(error) } })
     }
   }
-  return results;
+  return results
 }
+
+export async function runDetector(name: string, input: DetectorInput): Promise<DetectorResult | undefined> {
+  const detector = detectorRegistry[name]
+  if (!detector) return undefined
+  try {
+    return await detector(input)
+  } catch (error) {
+    return { detectionType: name, probability: 0, result: { error: error instanceof Error ? error.message : String(error) } }
+  }
+}
+
+export { detectorRegistry }
+export default detectorRegistry

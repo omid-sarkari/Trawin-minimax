@@ -1,42 +1,52 @@
-// Paste Ratio Detector - Detects external paste usage
-export const pasteRatioDetectorConfig = {
-  name: 'paste_ratio',
-  description: 'Detects when significant code is pasted from external sources',
-  version: '1.0.0',
-  enabled: true,
-  thresholds: { warning: 0.3, high: 0.5, critical: 0.7 }
-};
+import { DetectorFunction, DetectorResult } from '../types/detector'
+import { RawEditorEvent, RawClipboardMarker } from '../types/raw-events'
 
-export function pasteRatioDetector(input: { editorEvents: any[]; codingEvents: any[]; clipboardMarkers: any[]; snapshots: any[] }): any[] {
-  const results: any[] = [];
-  const externalPastes = input.clipboardMarkers.filter(m => m.markerType === 'paste' && !m.isInternal);
-  const totalEvents = input.editorEvents.length + input.codingEvents.length;
-  const pasteRatio = input.snapshots.length > 0 && externalPastes.length > 0 ? 
-    Math.min(1, (externalPastes.length * 5) / input.snapshots.length) : 0;
-  const pasteFrequency = totalEvents > 0 ? externalPastes.length / totalEvents : 0;
-  const probability = Math.min(1, pasteRatio * 1.2 + pasteFrequency * 0.3);
-  
-  results.push({
-    detectionType: 'paste_ratio',
-    probability,
-    result: { pasteRatio, externalPasteCount: externalPastes.length, totalPasteCount: input.clipboardMarkers.filter(m => m.markerType === 'paste').length, totalEvents, pasteFrequency }
-  });
-  
-  if (externalPastes.length >= 3) {
-    const pasteTimes = externalPastes.filter(m => m.createdAt).map(m => new Date(m.createdAt).getTime());
-    if (pasteTimes.length >= 3) {
-      pasteTimes.sort((a: any, b: any) => a - b);
-      for (let i = 2; i < pasteTimes.length; i++) {
-        if (pasteTimes[i] - pasteTimes[i-2] <= 60000) {
-          results.push({
-            detectionType: 'burst_paste',
-            probability: 0.9,
-            result: { pasteCount: 3, timeWindowMs: pasteTimes[i] - pasteTimes[i-2], message: '3+ external pastes within 1 minute' }
-          });
-          break;
-        }
+const DEFAULT_CONFIG = { threshold: 0.7, minTotalChars: 100 }
+
+function getPastedCharCount(clipboardMarkers: RawClipboardMarker[]): number {
+  let count = 0
+  for (const marker of clipboardMarkers) {
+    if (marker.isInternal) continue
+    const metadata = marker.metadata as Record<string, unknown> | null
+    if (metadata && typeof metadata.contentLength === 'number') count += metadata.contentLength
+    else if (typeof marker.markerHash === 'string') count += marker.markerHash.length * 2
+  }
+  return count
+}
+
+function getTypedCharCount(editorEvents: RawEditorEvent[]): number {
+  let count = 0
+  for (const event of editorEvents) {
+    const payload = event.payload as Record<string, unknown> | null
+    if (event.eventType === 'insert' || event.eventType === 'insertText') {
+      if (payload && typeof payload.text === 'string') count += payload.text.length
+      else if (payload && Array.isArray(payload.lines)) {
+        count += (payload.lines as unknown[]).reduce((sum, line) => sum + (typeof line === 'string' ? line.length : 0), 0)
       }
     }
   }
-  return results;
+  return count
 }
+
+export const pasteRatioDetector: DetectorFunction = (input): DetectorResult => {
+  const { editorEvents, clipboardMarkers } = input
+  const pastedChars = getPastedCharCount(clipboardMarkers)
+  const typedChars = getTypedCharCount(editorEvents)
+  const totalChars = pastedChars + typedChars
+  const ratio = totalChars > 0 ? pastedChars / totalChars : 0
+
+  if (totalChars < DEFAULT_CONFIG.minTotalChars) {
+    return { detectionType: 'paste_ratio', probability: 0, result: { message: 'Insufficient data', pastedChars, typedChars, totalChars, ratio } }
+  }
+
+  const excess = ratio - DEFAULT_CONFIG.threshold
+  const probability = excess > 0 ? Math.min(1, excess / (1 - DEFAULT_CONFIG.threshold)) : 0
+
+  return {
+    detectionType: 'paste_ratio',
+    probability: Math.round(probability * 100) / 100,
+    result: { pastedChars, typedChars, totalChars, ratio: Math.round(ratio * 1000) / 1000, threshold: DEFAULT_CONFIG.threshold }
+  }
+}
+
+export default pasteRatioDetector
