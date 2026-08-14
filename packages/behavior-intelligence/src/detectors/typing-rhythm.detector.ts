@@ -1,48 +1,54 @@
-// Typing Rhythm Detector - Detects unnatural typing patterns
-export const typingRhythmDetectorConfig = {
-  name: 'typing_rhythm',
-  description: 'Detects unnatural typing patterns that may indicate AI assistance',
-  version: '1.0.0',
-  enabled: true,
-  thresholds: { humanMinStdDev: 50, humanMaxStdDev: 300, aiMinStdDev: 0, aiMaxStdDev: 30, burstThreshold: 0.3 }
-};
+import { DetectorFunction, DetectorResult } from '../types/detector'
+import { RawEditorEvent } from '../types/raw-events'
 
-export function typingRhythmDetector(input: { editorEvents: any[]; codingEvents: any[]; clipboardMarkers: any[]; snapshots: any[] }): any[] {
-  const results: any[] = [];
-  const typingEvents = input.editorEvents.filter(e => e.eventType === 'keystroke' || e.eventType === 'insert' || e.eventType === 'type');
-  if (typingEvents.length < 10) return results;
-  
-  const times: number[] = [];
-  for (let i = 1; i < typingEvents.length; i++) {
-    const prev = typingEvents[i-1], curr = typingEvents[i];
-    if (prev.createdAt && curr.createdAt) {
-      times.push(new Date(curr.createdAt).getTime() - new Date(prev.createdAt).getTime());
+const DEFAULT_CONFIG = { expectedMeanIkiMs: 200, expectedStdDevIkiMs: 100, minIntervals: 20, regularityThreshold: 0.3, irregularityThreshold: 2.0 }
+
+function extractInterKeystrokeIntervals(editorEvents: RawEditorEvent[]): number[] {
+  const timestamps: number[] = []
+  for (const event of editorEvents) {
+    if (event.eventType === 'insert' || event.eventType === 'insertText') {
+      const payload = event.payload as Record<string, unknown> | null
+      let charCount = 0
+      if (payload && typeof payload.text === 'string') charCount = payload.text.length
+      else if (payload && Array.isArray(payload.lines)) {
+        charCount = (payload.lines as unknown[]).reduce((sum, line) => sum + (typeof line === 'string' ? line.length : 0), 0)
+      }
+      const timestamp = new Date(event.createdAt).getTime()
+      for (let i = 0; i < charCount; i++) timestamps.push(timestamp + i)
     }
   }
-  if (times.length === 0) return results;
-  
-  const mean = times.reduce((sum, t) => sum + t, 0) / times.length;
-  const variance = times.reduce((sum, t) => sum + Math.pow(t - mean, 2), 0) / times.length;
-  const stdDev = Math.sqrt(variance);
-  const burstCount = times.filter(t => t < mean * 0.3 && t > 0).length;
-  const aiProbability = Math.max(0, Math.min(1, 1 - stdDev / typingRhythmDetectorConfig.thresholds.humanMaxStdDev + burstCount / (typingEvents.length * 0.1) * 0.5));
-  
-  let rhythmType = 'human';
-  if (stdDev < typingRhythmDetectorConfig.thresholds.aiMaxStdDev) rhythmType = 'ai_suspicious';
-  else if (stdDev > typingRhythmDetectorConfig.thresholds.humanMaxStdDev) rhythmType = 'erratic';
-  
-  results.push({
-    detectionType: 'typing_rhythm',
-    probability: aiProbability,
-    result: { avgTimeBetweenKeystrokesMs: mean, stdDevTimeBetweenKeystrokesMs: stdDev, burstCount, totalTypingEvents: typingEvents.length, rhythmType }
-  });
-  
-  if (stdDev < 5 && typingEvents.length > 50) {
-    results.push({
-      detectionType: 'perfect_typing',
-      probability: 0.95,
-      result: { message: 'Extremely consistent typing rhythm detected', stdDevMs: stdDev, eventCount: typingEvents.length }
-    });
+  const intervals: number[] = []
+  for (let i = 1; i < timestamps.length; i++) {
+    const interval = timestamps[i] - timestamps[i - 1]
+    if (interval >= 1) intervals.push(interval)
   }
-  return results;
+  return intervals
 }
+
+export const typingRhythmDetector: DetectorFunction = (input): DetectorResult => {
+  const { editorEvents } = input
+  const intervals = extractInterKeystrokeIntervals(editorEvents)
+  if (intervals.length < DEFAULT_CONFIG.minIntervals) {
+    return { detectionType: 'typing_rhythm', probability: 0, result: { message: 'Insufficient data', totalIntervals: intervals.length } }
+  }
+  const meanIki = intervals.reduce((a, b) => a + b, 0) / intervals.length
+  const variance = intervals.reduce((sum, val) => sum + Math.pow(val - meanIki, 2), 0) / intervals.length
+  const stdDevIki = Math.sqrt(variance)
+  const cv = meanIki > 0 ? stdDevIki / meanIki : 0
+  let probability = 0
+  if (cv < DEFAULT_CONFIG.regularityThreshold) {
+    probability = Math.min(0.5, (DEFAULT_CONFIG.regularityThreshold - cv) / DEFAULT_CONFIG.regularityThreshold)
+  }
+  if (cv > DEFAULT_CONFIG.irregularityThreshold) {
+    probability = Math.max(probability, Math.min(0.5, (cv - DEFAULT_CONFIG.irregularityThreshold) / DEFAULT_CONFIG.irregularityThreshold))
+  }
+  const meanDeviation = Math.abs(meanIki - DEFAULT_CONFIG.expectedMeanIkiMs) / DEFAULT_CONFIG.expectedMeanIkiMs
+  probability = Math.min(1, probability + meanDeviation * 0.3)
+  return {
+    detectionType: 'typing_rhythm',
+    probability: Math.round(probability * 100) / 100,
+    result: { meanIkiMs: Math.round(meanIki * 100) / 100, stdDevIkiMs: Math.round(stdDevIki * 100) / 100, coefficientOfVariation: Math.round(cv * 1000) / 1000 }
+  }
+}
+
+export default typingRhythmDetector
