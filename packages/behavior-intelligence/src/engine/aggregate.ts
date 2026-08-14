@@ -1,41 +1,53 @@
-// Aggregation Utilities
-export function aggregateByAverage(detectorResults: any[]): number {
-  if (detectorResults.length === 0) return 1.0;
-  return detectorResults.reduce((sum, r) => sum + r.probability, 0) / detectorResults.length;
-}
+import { DetectorResult } from '../types/detector'
+import { RuleConfig } from '../types/rules'
+import { BehaviorState } from '../types/engine'
 
-export function calculateConfidence(detectorResults: any[]): number {
-  if (detectorResults.length === 0) return 1.0;
-  const probabilities = detectorResults.map(r => r.probability);
-  const mean = probabilities.reduce((sum, p) => sum + p, 0) / probabilities.length;
-  const variance = probabilities.reduce((sum, p) => sum + Math.pow(p - mean, 2), 0) / probabilities.length;
-  const stdDev = Math.sqrt(variance);
-  return Math.max(0, Math.min(1, 1 - Math.min(1, stdDev / 0.5)));
-}
-
-export function generateReport(detectorResults: any[], behaviorState: any): string {
-  const lines = [
-    '=== Behavior Intelligence Report ===',
-    '',
-    `Ensemble Score: ${(behaviorState.ensembleScore * 100).toFixed(2)}%`,
-    `Confidence: ${(calculateConfidence(detectorResults) * 100).toFixed(2)}%`,
-    `Requires Human Review: ${behaviorState.requiresHumanReview}`,
-    ''
-  ];
-  if (behaviorState.flags.length > 0) {
-    lines.push('Flags:');
-    for (const flag of behaviorState.flags) lines.push(`  - ${flag}`);
-    lines.push('');
+export function aggregateDetectorResults(detectorResults: DetectorResult[], ruleConfigs: RuleConfig[]): BehaviorState {
+  const detectorScores: Record<string, { score: number; weight: number }> = {}
+  const flags: Set<string> = new Set()
+  let totalWeightedScore = 0
+  let totalWeight = 0
+  let requiresHumanReview = false
+  for (const result of detectorResults) detectorScores[result.detectionType] = { score: result.probability, weight: 0 }
+  for (const ruleConfig of ruleConfigs) {
+    const detectorResult = detectorResults.find(r => r.detectionType === ruleConfig.condition.detector)
+    if (!detectorResult) continue
+    const isMet = checkCondition(detectorResult.probability, ruleConfig.condition)
+    if (isMet) {
+      if (ruleConfig.action.flag) flags.add(ruleConfig.action.flag)
+      totalWeightedScore += detectorResult.probability * ruleConfig.action.weight
+      totalWeight += ruleConfig.action.weight
+      if (detectorScores[ruleConfig.condition.detector]) detectorScores[ruleConfig.condition.detector].weight += ruleConfig.action.weight
+      if (detectorResult.probability > 0.9) requiresHumanReview = true
+    }
   }
-  lines.push('Detector Results:');
+  const ensembleScore = totalWeight > 0 ? Math.min(1, totalWeightedScore / totalWeight) : 0
+  return { ensembleScore: Math.round(ensembleScore * 1000) / 1000, flags: Array.from(flags), requiresHumanReview, detectors: detectorScores }
+}
+
+function checkCondition(value: number, condition: any): boolean {
+  switch (condition.operator) {
+    case 'gte': return value >= condition.value
+    case 'lte': return value <= condition.value
+    case 'gt': return value > condition.value
+    case 'lt': return value < condition.value
+    case 'eq': return value === condition.value
+    default: return false
+  }
+}
+
+export function simpleAggregate(detectorResults: DetectorResult[]): BehaviorState {
+  const detectorScores: Record<string, { score: number; weight: number }> = {}
+  const flags: string[] = []
+  let maxScore = 0
+  let requiresHumanReview = false
   for (const result of detectorResults) {
-    lines.push(`  - ${result.detectionType}: ${(result.probability * 100).toFixed(2)}%`);
+    detectorScores[result.detectionType] = { score: result.probability, weight: 1 }
+    if (result.probability > maxScore) maxScore = result.probability
+    if (result.probability > 0.9) { requiresHumanReview = true; flags.push(`${result.detectionType}_high`) }
+    else if (result.probability > 0.7) flags.push(`${result.detectionType}_medium`)
   }
-  return lines.join('\n');
+  return { ensembleScore: Math.round(maxScore * 1000) / 1000, flags, requiresHumanReview, detectors: detectorScores }
 }
 
-export function checkForAIUsage(detectorResults: any[], threshold = 0.7): boolean {
-  if (detectorResults.length === 0) return false;
-  const highProbabilityResults = detectorResults.filter((r: any) => r.probability >= threshold);
-  return highProbabilityResults.length >= 2;
-}
+export default aggregateDetectorResults
