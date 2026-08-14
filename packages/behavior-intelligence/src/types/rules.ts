@@ -1,14 +1,1 @@
-export interface RuleConfig {
-  ruleId: number
-  ruleName: string
-  version: number
-  condition: {
-    detector: string
-    operator: 'gte' | 'lte' | 'gt' | 'lt' | 'eq'
-    value: number
-  }
-  action: {
-    weight: number
-    flag: string
-  }
-}
+export interface RuleConfig { ruleId: number; ruleName: string; version: number; condition: { detector: string; operator: 'gte' | 'lte' | 'gt' | 'lt' | 'eq'; value: number }; action: { weight: number; flag: string } }
