@@ -1,46 +1,34 @@
-// Behavior Intelligence - Diff Utilities
-export interface CodeDiff {
-  addedLines: number;
-  removedLines: number;
-  changedLines: number;
-  similarity: number;
+export function charDiff(oldStr: string, newStr: string): number {
+  const oldLen = oldStr.length
+  const newLen = newStr.length
+  let commonPrefix = 0
+  while (commonPrefix < oldLen && commonPrefix < newLen && oldStr[commonPrefix] === newStr[commonPrefix]) commonPrefix++
+  let commonSuffix = 0
+  while (commonSuffix < oldLen - commonPrefix && commonSuffix < newLen - commonPrefix &&
+    oldStr[oldLen - 1 - commonSuffix] === newStr[newLen - 1 - commonSuffix]) commonSuffix++
+  return oldLen + newLen - 2 * commonPrefix - 2 * commonSuffix
 }
 
-export function calculateDiff(oldCode: string, newCode: string): CodeDiff {
-  const oldLines = oldCode.split('\n'), newLines = newCode.split('\n');
-  const addedLines = Math.max(0, newLines.length - oldLines.length);
-  const removedLines = Math.max(0, oldLines.length - newLines.length);
-  const maxLength = Math.max(oldLines.length, newLines.length);
-  let matchingLines = 0;
-  for (let i = 0; i < Math.min(oldLines.length, newLines.length); i++) {
-    if (oldLines[i] === newLines[i]) matchingLines++;
-  }
-  const similarity = maxLength > 0 ? matchingLines / maxLength : 1;
-  let changedLines = 0;
-  for (let i = 0; i < Math.min(oldLines.length, newLines.length); i++) {
-    if (oldLines[i] !== newLines[i]) changedLines++;
-  }
-  return { addedLines, removedLines, changedLines, similarity };
+export function similarityRatio(oldStr: string, newStr: string): number {
+  const maxLen = Math.max(oldStr.length, newStr.length)
+  return maxLen === 0 ? 1 : 1 - charDiff(oldStr, newStr) / maxLen
 }
 
-export function calculateEditLocality(snapshots: any[]): number {
-  if (snapshots.length < 2) return 0.5;
-  let totalEdits = 0, localizedEdits = 0;
-  for (let i = 1; i < snapshots.length; i++) {
-    const oldContent = snapshots[i-1].content as { code?: string };
-    const newContent = snapshots[i].content as { code?: string };
-    if (oldContent?.code && newContent?.code) {
-      const diff = calculateDiff(oldContent.code, newContent.code);
-      totalEdits += diff.addedLines + diff.removedLines + diff.changedLines;
-      if (diff.addedLines + diff.removedLines + diff.changedLines > 0) {
-        const lineNumbers = Array.from({length: diff.addedLines + diff.removedLines + diff.changedLines}, (_, j) => i + j);
-        if (lineNumbers.length > 0) {
-          const minLine = Math.min(...lineNumbers), maxLine = Math.max(...lineNumbers);
-          const range = maxLine - minLine + 1;
-          if (range <= lineNumbers.length * 2) localizedEdits += lineNumbers.length;
-        }
-      }
+export function levenshteinDistance(a: string, b: string): number {
+  if (a.length === 0) return b.length
+  if (b.length === 0) return a.length
+  const matrix: number[][] = Array(b.length + 1).fill(null).map(() => Array(a.length + 1).fill(0))
+  for (let i = 0; i <= b.length; i++) matrix[i][0] = i
+  for (let j = 0; j <= a.length; j++) matrix[0][j] = j
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) matrix[i][j] = matrix[i - 1][j - 1]
+      else matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1))
     }
   }
-  return totalEdits > 0 ? localizedEdits / totalEdits : 0.5;
+  return matrix[b.length][a.length]
+}
+
+export function isLikelyCopied(content: string, sourceContent: string, threshold: number = 0.9): boolean {
+  return similarityRatio(content, sourceContent) >= threshold
 }

@@ -1,23 +1,39 @@
-// Behavior Intelligence - Time Utilities
-export interface TimeWindow { start: string; end: string; durationMs: number; }
-
-export function calculateTimeWindows(events: Array<{ createdAt: string | null }>): TimeWindow {
-  let earliest: string | null = null, latest: string | null = null;
-  for (const event of events) {
-    if (event.createdAt) {
-      if (!earliest || event.createdAt < earliest) earliest = event.createdAt;
-      if (!latest || event.createdAt > latest) latest = event.createdAt;
-    }
-  }
-  if (!earliest || !latest) return { start: '', end: '', durationMs: 0 };
-  const startDate = new Date(earliest), endDate = new Date(latest);
-  return { start: earliest, end: latest, durationMs: endDate.getTime() - startDate.getTime() };
+export function parseISODate(dateString: string | null): number {
+  if (!dateString) return 0
+  return new Date(dateString).getTime()
 }
 
-export function formatDuration(ms: number): string {
-  const seconds = Math.floor(ms / 1000), minutes = Math.floor(seconds / 60), hours = Math.floor(minutes / 60);
-  const remainingSeconds = seconds % 60, remainingMinutes = minutes % 60;
-  if (hours > 0) return `${hours}h ${remainingMinutes}m ${remainingSeconds}s`;
-  else if (minutes > 0) return `${minutes}m ${remainingSeconds}s`;
-  else return `${seconds}s`;
+export function formatISODate(timestamp: number): string {
+  return new Date(timestamp).toISOString()
+}
+
+export function timeDiffMs(startDate: string | null, endDate: string | null): number {
+  if (!startDate || !endDate) return 0
+  return parseISODate(endDate) - parseISODate(startDate)
+}
+
+export function timeDiffSeconds(startDate: string | null, endDate: string | null): number {
+  return timeDiffMs(startDate, endDate) / 1000
+}
+
+export function timeDiffMinutes(startDate: string | null, endDate: string | null): number {
+  return timeDiffSeconds(startDate, endDate) / 60
+}
+
+export function nowISO(): string {
+  return new Date().toISOString()
+}
+
+export function averageInterEventInterval(timestamps: string[]): number {
+  if (timestamps.length < 2) return 0
+  const parsed = timestamps.map(t => parseISODate(t)).filter(t => t > 0).sort((a, b) => a - b)
+  if (parsed.length < 2) return 0
+  let totalDiff = 0
+  for (let i = 1; i < parsed.length; i++) totalDiff += parsed[i] - parsed[i - 1]
+  return totalDiff / (parsed.length - 1)
+}
+
+export function calculateRate(count: number, startTime: string | null, endTime: string | null): number {
+  const durationMs = timeDiffMs(startTime, endTime)
+  return durationMs <= 0 ? 0 : count / (durationMs / 1000)
 }

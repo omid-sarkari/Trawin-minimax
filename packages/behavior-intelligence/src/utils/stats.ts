@@ -1,90 +1,36 @@
-// Behavior Intelligence - Statistics Utilities
-export interface EventStatistics {
-  totalEvents: number;
-  eventsByType: Record<string, number>;
-  avgEventsPerMinute: number;
-  peakActivity: { time: string; count: number };
+export function mean(values: number[]): number {
+  if (values.length === 0) return 0
+  return values.reduce((sum, val) => sum + val, 0) / values.length
 }
 
-export interface CodeStatistics {
-  totalLinesAdded: number;
-  totalLinesRemoved: number;
-  netLines: number;
-  avgLineLength: number;
-  maxLineLength: number;
-  totalCharacters: number;
+export function standardDeviation(values: number[]): number {
+  if (values.length <= 1) return 0
+  const avg = mean(values)
+  const squaredDiffs = values.map(val => Math.pow(val - avg, 2))
+  const variance = mean(squaredDiffs)
+  return Math.sqrt(variance)
 }
 
-export interface SessionStatistics {
-  durationMinutes: number;
-  eventStats: EventStatistics;
-  codeStats: CodeStatistics;
-  pasteCount: number;
-  externalPasteCount: number;
+export function median(values: number[]): number {
+  if (values.length === 0) return 0
+  const sorted = [...values].sort((a, b) => a - b)
+  const middle = Math.floor(sorted.length / 2)
+  if (sorted.length % 2 === 0) return (sorted[middle - 1] + sorted[middle]) / 2
+  return sorted[middle]
 }
 
-export function calculateEditorStats(events: any[]): EventStatistics {
-  const eventsByType: Record<string, number> = {};
-  let peakCount = 0;
-  let peakTime = '';
-  const timeCounts: Record<string, number> = {};
-  
-  for (const event of events) {
-    eventsByType[event.eventType] = (eventsByType[event.eventType] || 0) + 1;
-    if (event.createdAt) {
-      const minute = event.createdAt.substring(0, 16);
-      timeCounts[minute] = (timeCounts[minute] || 0) + 1;
-      if (timeCounts[minute] > peakCount) {
-        peakCount = timeCounts[minute];
-        peakTime = minute;
-      }
-    }
-  }
-  
-  const totalEvents = events.length;
-  const avgEventsPerMinute = totalEvents > 0 ? totalEvents / (Object.keys(timeCounts).length || 1) : 0;
-  
-  return {
-    totalEvents,
-    eventsByType,
-    avgEventsPerMinute,
-    peakActivity: { time: peakTime, count: peakCount },
-  };
+export function safeRatio(numerator: number, denominator: number): number {
+  if (denominator === 0) return 0
+  return numerator / denominator
 }
 
-export function calculateClipboardStats(markers: any[]): { totalPasteCount: number; externalPasteCount: number; internalPasteCount: number } {
-  let totalPasteCount = 0, externalPasteCount = 0, internalPasteCount = 0;
-  for (const marker of markers) {
-    if (marker.markerType === 'paste') {
-      totalPasteCount++;
-      if (marker.isInternal) internalPasteCount++;
-      else externalPasteCount++;
-    }
-  }
-  return { totalPasteCount, externalPasteCount, internalPasteCount };
+export function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max)
 }
 
-export function calculateCodeMetrics(snapshots: any[]): CodeStatistics {
-  let totalLinesAdded = 0, totalLinesRemoved = 0, totalCharacters = 0, totalLines = 0, maxLineLength = 0;
-  for (const snapshot of snapshots) {
-    if (snapshot.content && typeof snapshot.content === 'object') {
-      const content = snapshot.content as { code?: string };
-      if (content.code) {
-        const lines = content.code.split('\n');
-        totalLines += lines.length;
-        totalCharacters += content.code.length;
-        for (const line of lines) {
-          if (line.length > maxLineLength) maxLineLength = line.length;
-        }
-      }
-    }
-  }
-  return {
-    totalLinesAdded,
-    totalLinesRemoved,
-    netLines: totalLinesAdded - totalLinesRemoved,
-    avgLineLength: totalLines > 0 ? totalCharacters / totalLines : 0,
-    maxLineLength,
-    totalCharacters,
-  };
+export function weightedAverage(values: number[], weights: number[]): number {
+  if (values.length !== weights.length || values.length === 0) return 0
+  const weightedSum = values.reduce((sum, val, idx) => sum + val * weights[idx], 0)
+  const sumWeights = weights.reduce((sum, w) => sum + w, 0)
+  return sumWeights === 0 ? 0 : weightedSum / sumWeights
 }
