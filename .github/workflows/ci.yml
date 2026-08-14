@@ -3,7 +3,7 @@ on:
   push:
     branches: [ 'feature/behavior-intelligence-resume-system' ]
   pull_request:
-    branches: [ 'main' ]
+    branches: [ 'feature/behavior-intelligence-resume-system' ]
 
 jobs:
   build:
