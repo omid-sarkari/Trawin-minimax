@@ -1,12 +1,18 @@
-// Behavior Intelligence - Adapter Interface
+import { RawEditorEvent, RawCodingEvent, RawClipboardMarker, RawSnapshot } from './raw-events'
+import { RuleConfig } from './rules'
+import { EngineOutput } from './engine'
+
 export interface BehaviorIntelligenceAdapter {
   fetchSessionEvents(codingSessionId: string): Promise<{
-    editorEvents: any[];
-    codingEvents: any[];
-    clipboardMarkers: any[];
-    snapshots: any[];
-  }>;
-  loadActiveRuleConfig(): Promise<any[]>;
-  loadActiveEngineVersion(): Promise<string>;
-  persistResults(codingSessionId: string, output: any): Promise<void>;
+    editorEvents: RawEditorEvent[]
+    codingEvents: RawCodingEvent[]
+    clipboardMarkers: RawClipboardMarker[]
+    snapshots: RawSnapshot[]
+  }>
+
+  loadActiveRuleConfig(): Promise<RuleConfig[]>
+
+  loadActiveEngineVersion(): Promise<string>
+
+  persistResults(codingSessionId: string, output: EngineOutput): Promise<void>
 }
