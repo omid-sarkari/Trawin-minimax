@@ -2,14 +2,29 @@
   "name": "trawin-minimax",
   "version": "1.0.0",
   "private": true,
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
+    "dev": "next dev --hostname localhost",
     "build": "npm run build --workspaces",
     "build:behavior-intelligence": "npm run build --workspace=behavior-intelligence",
     "test": "npm run test --workspaces",
     "test:behavior-intelligence": "npm run test --workspace=behavior-intelligence"
   },
   "devDependencies": {
-    "typescript": "^5.3.3"
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^26.2.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "postcss": "^8.5.26",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.12.4",
+    "next": "^16.3.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
   }
 }
