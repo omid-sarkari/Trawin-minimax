@@ -1,8 +1,8 @@
 /**
  * Supabase Middleware Helper
  *
- * Refreshes the auth session on every request and exposes a Supabase client to
- * middleware.ts for protected-route checks.
+ * Refreshes the auth session on every request and exposes the current user
+ * to middleware.ts for protected-route checks.
  */
 
 import { createServerClient } from "@supabase/ssr";
@@ -34,8 +34,9 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // Refresh session if expired
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  return response;
+  return { response, user };
 }

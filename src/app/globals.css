@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
+  --background: #fafafa;
   --foreground: #171717;
 }
 
@@ -12,9 +12,29 @@
   --font-mono: var(--font-geist-mono);
 }
 
+@theme {
+  /* Signal — تأیید‌شده / قبول. برگرفته از موتور Signal Registry خود Trawin */
+  --color-signal-50: #ecfdf5;
+  --color-signal-100: #cff7e3;
+  --color-signal-200: #9de9c8;
+  --color-signal-400: #34d399;
+  --color-signal-500: #16b587;
+  --color-signal-600: #0e9370;
+  --color-signal-700: #0b7359;
+  --color-signal-900: #0b3b2e;
+
+  /* Flag — نیاز به توجه/بررسی. فقط جاهایی که واقعاً چیزی برای بررسی هست */
+  --color-flag-50: #fffbeb;
+  --color-flag-100: #fdecc8;
+  --color-flag-400: #f5b94d;
+  --color-flag-500: #e8a33d;
+  --color-flag-600: #c6821f;
+  --color-flag-900: #4a3410;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #000000;
     --foreground: #ededed;
   }
 }
@@ -23,4 +43,12 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

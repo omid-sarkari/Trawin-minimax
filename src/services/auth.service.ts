@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/client';
-import { Database } from '@/types/database.types';
+import { Database } from '@/types/database';
 
 export class AuthService {
   private supabase = createClient();
