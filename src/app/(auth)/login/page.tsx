@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthService } from '@/services/auth.service';
 
 export default function LoginPage() {
@@ -12,6 +12,8 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const authService = new AuthService();
+  const searchParams = useSearchParams();
+  const registered = searchParams.get('registered');
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,7 +23,11 @@ export default function LoginPage() {
       await authService.signIn(email, password);
       router.push('/dashboard');
     } catch (err: any) {
-      setError(err.message || 'خطا در ورود به سیستم');
+      if (err.message === 'Email not confirmed') {
+        setError('ثبت‌نام شما موفق بود، اما برای ورود ابتدا باید ایمیل خود را تأیید کنید. لطفاً صندوق ورودی ایمیل خود را بررسی کنید.');
+      } else {
+        setError(err.message || 'خطا در ورود به سیستم');
+      }
       setIsSubmitting(false);
     }
   };
@@ -47,6 +53,13 @@ export default function LoginPage() {
             </Link>
           </p>
         </div>
+
+        {/* پیام ثبت‌نام موفق - اضافه شده */}
+        {registered && (
+          <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-center text-sm text-green-800 dark:border-green-800 dark:bg-green-950 dark:text-green-300">
+            ✅ ثبت‌نام شما با موفقیت انجام شد! لطفاً ایمیل خود را تأیید کنید.
+          </div>
+        )}
 
         <form className="space-y-4" onSubmit={handleLogin}>
           <div>
