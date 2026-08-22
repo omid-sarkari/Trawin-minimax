@@ -25,7 +25,7 @@ export function aggregateDetectorResults(detectorResults: DetectorResult[], rule
   return { ensembleScore: Math.round(ensembleScore * 1000) / 1000, flags: Array.from(flags), requiresHumanReview, detectors: detectorScores }
 }
 
-function checkCondition(value: number, condition: any): boolean {
+export function checkCondition(value: number, condition: any): boolean {
   switch (condition.operator) {
     case 'gte': return value >= condition.value
     case 'lte': return value <= condition.value

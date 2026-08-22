@@ -11,7 +11,7 @@ function extractInsertionEvents(editorEvents: RawEditorEvent[]): Array<{ timesta
       let charCount = 0
       if (payload && typeof payload.text === 'string') charCount = payload.text.length
       else if (payload && Array.isArray(payload.lines)) {
-        charCount = (payload.lines as unknown[]).reduce((sum, line) => sum + (typeof line === 'string' ? line.length : 0), 0)
+        charCount = (payload.lines as string[]).reduce((sum, line) => sum + (typeof line === 'string' ? line.length : 0), 0)
       }
       if (charCount > 0) insertions.push({ timestamp: new Date(event.createdAt).getTime(), charCount })
     }

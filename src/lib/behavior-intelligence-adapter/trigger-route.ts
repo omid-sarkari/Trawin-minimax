@@ -1,19 +1,21 @@
-// API Route Handler for Behavior Intelligence
-export async function POST(request: Request) {
+import { runBehaviorAnalysis } from 'behavior-intelligence'
+import { NextjsBehaviorIntelligenceAdapter } from './nextjs.adapter'
+import { createClient } from '@/lib/supabase/server'
+
+export async function POST(request: Request): Promise<Response> {
   try {
-    const { codingSessionId } = await request.json();
-    if (!codingSessionId) return new Response(JSON.stringify({ error: 'codingSessionId is required' }), { status: 400 });
-    
-    const { runBehaviorAnalysis } = require('behavior-intelligence');
-    const { NextjsBehaviorIntelligenceAdapter } = require('./nextjs.adapter');
-    const { createServerClient } = require('@supabase/ssr');
-    
-    const supabase = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
-    const adapter = new NextjsBehaviorIntelligenceAdapter(supabase);
-    await runBehaviorAnalysis(adapter, codingSessionId);
-    
-    return new Response(JSON.stringify({ success: true, codingSessionId }), { status: 200 });
-  } catch (error: any) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    const { codingSessionId } = await request.json()
+    if (!codingSessionId) {
+      return Response.json({ error: 'codingSessionId is required' }, { status: 400 })
+    }
+
+    const supabase = await createClient()
+    const adapter = new NextjsBehaviorIntelligenceAdapter(supabase)
+    await runBehaviorAnalysis(adapter, codingSessionId)
+
+    return Response.json({ success: true, codingSessionId }, { status: 200 })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    return Response.json({ error: message }, { status: 500 })
   }
 }

@@ -21,7 +21,7 @@ function getTypedCharCount(editorEvents: RawEditorEvent[]): number {
     if (event.eventType === 'insert' || event.eventType === 'insertText') {
       if (payload && typeof payload.text === 'string') count += payload.text.length
       else if (payload && Array.isArray(payload.lines)) {
-        count += (payload.lines as unknown[]).reduce((sum, line) => sum + (typeof line === 'string' ? line.length : 0), 0)
+        count += (payload.lines as string[]).reduce((sum, line) => sum + (typeof line === 'string' ? line.length : 0), 0)
       }
     }
   }

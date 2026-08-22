@@ -11,7 +11,7 @@ function extractInterKeystrokeIntervals(editorEvents: RawEditorEvent[]): number[
       let charCount = 0
       if (payload && typeof payload.text === 'string') charCount = payload.text.length
       else if (payload && Array.isArray(payload.lines)) {
-        charCount = (payload.lines as unknown[]).reduce((sum, line) => sum + (typeof line === 'string' ? line.length : 0), 0)
+        charCount = (payload.lines as string[]).reduce((sum, line) => sum + (typeof line === 'string' ? line.length : 0), 0)
       }
       const timestamp = new Date(event.createdAt).getTime()
       for (let i = 0; i < charCount; i++) timestamps.push(timestamp + i)

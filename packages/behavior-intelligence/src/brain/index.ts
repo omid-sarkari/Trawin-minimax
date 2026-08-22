@@ -10,7 +10,7 @@
 
 import {
   BrainInput, NormalizedInput, NormalizedEvent, NormalizedSnapshot,
-  SessionMetadata, ProcessingOutput, DecisionOutput, BrainOutput, BrainConfig
+  SessionMetadata, ProcessingOutput, ProcessingResult, DecisionOutput, BrainOutput, BrainConfig
 } from './types'
 import { DEFAULT_BRAIN_CONFIG, getBrainConfig, STRICT_BRAIN_CONFIG, LENIENT_BRAIN_CONFIG, TEST_BRAIN_CONFIG } from './config'
 import { RawEditorEvent, RawCodingEvent, RawClipboardMarker, RawSnapshot } from '../types/raw-events'
@@ -18,11 +18,11 @@ import { DetectorResult, DetectorInput } from '../types/detector'
 import { RuleConfig } from '../types/rules'
 import { EngineOutput, BehaviorState } from '../types/engine'
 import { getDetector, runDetector } from '../detectors'
-import { aggregateDetectorResults } from '../engine/aggregate'
+import { aggregateDetectorResults, checkCondition } from '../engine/aggregate'
 
 const nowISO = () => new Date().toISOString()
 
-class InputLayer {
+export class InputLayer {
   private config: BrainConfig
   constructor(config: BrainConfig) { this.config = config }
 
@@ -48,8 +48,9 @@ class InputLayer {
           charCount = payload.text.length
           content = payload.text
         } else if (payload && Array.isArray(payload.lines)) {
-          charCount = (payload.lines as unknown[]).reduce((sum, line) => sum + (typeof line === 'string' ? line.length : 0), 0)
-          content = (payload.lines as unknown[]).join('\n')
+          const lines = payload.lines as string[]
+          charCount = lines.reduce((sum, line) => sum + (typeof line === 'string' ? line.length : 0), 0)
+          content = lines.join('\n')
         }
         totalCharacters += charCount
         events.push({ id: event.id, timestamp, type: this.classifyEventType(event.eventType), position: (payload as any)?.position ?? null, length: charCount, content, source: 'editor', metadata: payload || {} })
@@ -112,19 +113,25 @@ class InputLayer {
   }
 }
 
-class ProcessingLayer {
+export class ProcessingLayer {
   private config: BrainConfig
   constructor(config: BrainConfig) { this.config = config }
 
-  async process(normalizedInput: NormalizedInput): Promise<ProcessingOutput> {
+  async process(normalizedInput: NormalizedInput, rawEvents?: Partial<DetectorInput>): Promise<ProcessingOutput> {
     const startTime = Date.now()
     const results: ProcessingResult[] = []
+    const detectorInput: DetectorInput = {
+      sessionId: normalizedInput.sessionId,
+      editorEvents: rawEvents?.editorEvents ?? [],
+      codingEvents: rawEvents?.codingEvents ?? [],
+      clipboardMarkers: rawEvents?.clipboardMarkers ?? [],
+      snapshots: rawEvents?.snapshots ?? []
+    }
     for (const detectorType of this.config.processing.enabledDetectors) {
       const detectorStart = Date.now()
       try {
         const detector = getDetector(detectorType)
         if (!detector) { console.warn(`Detector ${detectorType} not found`); continue }
-        const detectorInput: DetectorInput = { sessionId: normalizedInput.sessionId, editorEvents: [], codingEvents: [], clipboardMarkers: [], snapshots: [] }
         const result = await Promise.race([
           detector(detectorInput),
           new Promise<DetectorResult>((resolve) => setTimeout(() => resolve({ detectionType: detectorType, probability: 0, result: { error: 'Timeout' } }), this.config.processing.detectorTimeoutMs))
@@ -138,7 +145,7 @@ class ProcessingLayer {
   }
 }
 
-class DecisionLayer {
+export class DecisionLayer {
   private config: BrainConfig
   constructor(config: BrainConfig) { this.config = config }
 
@@ -154,20 +161,9 @@ class DecisionLayer {
     return ruleConfigs.map(ruleConfig => {
       const detectorResult = detectorResults.find(r => r.detectionType === ruleConfig.condition.detector)
       if (!detectorResult) return null
-      const isMet = this.checkCondition(detectorResult.probability, ruleConfig.condition)
+      const isMet = checkCondition(detectorResult.probability, ruleConfig.condition)
       return { ruleId: ruleConfig.ruleId, ruleName: ruleConfig.ruleName, detectorType: ruleConfig.condition.detector, isMet, detectorValue: detectorResult.probability, conditionValue: ruleConfig.condition.value, weight: ruleConfig.action.weight, flag: isMet ? ruleConfig.action.flag : null }
     }).filter(Boolean) as any[]
-  }
-
-  private checkCondition(value: number, condition: any): boolean {
-    switch (condition.operator) {
-      case 'gte': return value >= condition.value
-      case 'lte': return value <= condition.value
-      case 'gt': return value > condition.value
-      case 'lt': return value < condition.value
-      case 'eq': return value === condition.value
-      default: return false
-    }
   }
 
   private calculateConfidence(detectorResults: DetectorResult[], behaviorState: BehaviorState): number {
@@ -184,7 +180,7 @@ class DecisionLayer {
   }
 }
 
-class OutputLayer {
+export class OutputLayer {
   format(sessionId: string, engineVersion: string, decisionOutput: DecisionOutput): BrainOutput {
     const detectorResults = Object.entries(decisionOutput.behaviorState.detectors).map(([detectionType, { score, weight }]) => ({ detectionType, probability: score, result: { score, weight } }))
     return { engineVersion, computedAt: decisionOutput.decisionTimestamp, detectorResults, behaviorState: decisionOutput.behaviorState, sessionId }
@@ -212,7 +208,13 @@ export class BrainEngine {
 
   async process(input: BrainInput): Promise<{ engineOutput: EngineOutput; brainOutput: BrainOutput }> {
     const normalizedInput = this.inputLayer.normalize(input)
-    const processingOutput = await this.processingLayer.process(normalizedInput)
+    const rawEvents = {
+      editorEvents: this.config.input.useEditorEvents ? input.editorEvents : [],
+      codingEvents: this.config.input.useCodingEvents ? input.codingEvents : [],
+      clipboardMarkers: this.config.input.useClipboardMarkers ? input.clipboardMarkers : [],
+      snapshots: this.config.input.useSnapshots ? input.snapshots : []
+    }
+    const processingOutput = await this.processingLayer.process(normalizedInput, rawEvents)
     const decisionOutput = this.decisionLayer.decide(processingOutput, input.ruleConfig)
     const brainOutput = this.outputLayer.format(input.sessionId, input.engineVersion, decisionOutput)
     const engineOutput = this.outputLayer.toEngineOutput(brainOutput)
