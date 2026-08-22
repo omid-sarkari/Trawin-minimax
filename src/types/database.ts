@@ -1319,33 +1319,39 @@ export type Database = {
           bio: string | null
           country: string | null
           created_at: string | null
+          email: string | null
           experience_years: number | null
           full_name: string | null
           id: string
+          role_id: number | null
           updated_at: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
           country?: string | null
           created_at?: string | null
+          email?: string | null
           experience_years?: number | null
           full_name?: string | null
           id?: string
+          role_id?: number | null
           updated_at?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
           country?: string | null
           created_at?: string | null
+          email?: string | null
           experience_years?: number | null
           full_name?: string | null
           id?: string
+          role_id?: number | null
           updated_at?: string | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
