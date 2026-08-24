@@ -118,5 +118,25 @@
 - **`/company`:** بن خوشامد با نام شرکت از metadata، سه ماژول placeholder (آگهی‌ها/نامزدها/چالش اختصاصی) با بج «به‌زودی».
 - تأیید: tsc ✅ | next build ✅ (همه روت‌ها)
 
+### ✅ مرحله ۸: فاز ۳ — پنل مدیریت کامل (طبق سند Dash.md)
+**دیتابیس (اعمال مستقیم + verify زنده):**
+- Migration `20260822140000_admin_bulk_import.sql`: ارتقای نقش امید به `admin` در users + تابع `admin_bulk_import_questions(batch jsonb)` (SECURITY DEFINER، تراکنش اتمی همه‌یا‌هیچ) با REVOKE از anon/authenticated و GRANT فقط به service_role.
+- **تست واقعی اتمی بودن:** دسته شامل ردیف خراب → reject شد و هیچ ردیف یتیمی نماند ✓؛ دسته سالم → imported:1 ✓؛ داده تست پاک‌سازی شد.
+
+**معماری امنیت:** مرورگر ← API Route (assertAdmin: session + allowlist یا role='admin' سمت سرور) ← service-role client ← دیتابیس. کلید service هرگز به مرورگر نمی‌رود. RLS فعلی فقط SELECT دارد — پس همه نوشتن‌ها از همین مسیر می‌گذرند.
+
+**قرارداد JSON سؤال** متمرکز در `src/lib/admin/question-contracts.ts` (MCQ options داخل question_versions.content با is_correct صریح؛ ۵ نوع؛ سختی ۱-۵ عددی با لیبل فارسی).
+
+**API Routes:** bootstrap | technologies | skills | tags | questions (GET فیلتر+صفحه‌بندی، POST ساخت کامل، PATCH status/duplicate) | questions/bulk (preview→commit اتمی) | users (لیست/فیلتر، مسدودسازی/تغییر نقش با جلوگیری از self-lockout) | exams.
+
+**UI `/admin`:** layout با گارد دوگانه + DashboardShell مشترک؛ نمای کلی با آمار واقعی؛ لیست سؤالات (۶ فیلتر + انتشار/پیش‌نویس/کپی/جزئیات + Pager)؛ ویزارد ۳مرحله‌ای سؤال جدید (طبقه‌بندی cascade تکنولوژی→مهارت با وزن + هشدار نرمال‌سازی، ویرایشگر اختصاصی هر نوع: MCQ گزینه پویا/FillBlank/تشریحی/Coding/Debugging، پیش‌نمایش JSON، ذخیره پیش‌نویس یا انتشار)؛ ایمپورت گروهی (پیش‌فرض‌های ارثی + پیش‌نمایش خطای ردیف‌به‌ردیف + commit اتمی + قالب نمونه قابل کپی)؛ محتوا (تب‌های Tech/Skill/Tag با create و toggle فعال/غیرفعال — soft-disable نه delete)؛ کاربران (جستجو/فیلتر نقش-وضعیت/مسدودسازی/رفع/تغییر نقش)؛ آزمون‌ها (ساخت + لیست؛ افزودن سؤال به آزمون = قدم بعدی).
+
+**تأیید نهایی:** tsc ✅ | next build ✅ همه روت‌های admin | تست RPC اتمی ✅
+
+### ✅ مرحله ۹: رفع باگ UX ویزارد سؤال + هم‌راستایی کامل با قرارداد دیتابیس
+- **باگ اصلی:** در مرحله ۲ ویزارد، شکست اعتبارسنجی فقط دکمه را بی‌صدا disable می‌کرد (هیچ پیامی نبود) + خطای bootstrap هم بی‌صدا قورت داده می‌شد.
+- **بررسی زنده دیتابیس:** جدول جدا برای انواع سؤال وجود ندارد و این عمدی است (قرارداد Dash.md §10/§34: محتوا در question_versions.content JSONB)؛ اما ستون‌های `language` و `test_cases` برای کدینگ/دیباگ تاکنون پر نمی‌شدند. ۲۸ تگ موجود تأیید شد.
+- **بازنویسی ویزارد:** ارورهای زنده زیر فیلدها (چراغ «برای ادامه چه کم دارد») · راهنمای مثال بالای همه ورودی‌ها · پیش‌نمایش زنده جای خالی · ویرایشگر test_cases ساختاریافته → ستون واقعی test_cases · نرمال‌سازی constraints/examples به آرایه در save · حالت loading/error/retry برای bootstrap · بخش تگ‌ها پررنگ با شمارنده انتخاب.
+
 ---
 *آخرین بروزرسانی: ۲۰۲۶-۰۸-۲۲*
