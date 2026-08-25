@@ -108,6 +108,7 @@ export default function NewQuestionPage() {
           type,
           difficulty,
           status,
+          technology_id: technologyId,
           title,
           description,
           language: type === 'coding' || type === 'debugging' ? language.trim() : null,

@@ -67,18 +67,22 @@ export async function GET(request: Request) {
     }>
 
     return {
-      items: rows.map((row) => ({
-        id: row.id,
-        slug: row.slug,
-        type: row.type,
-        difficulty: row.difficulty,
-        status: row.status,
-        created_at: row.created_at,
-        updated_at: row.updated_at,
-        title: row.question_versions?.slice(-1)[0]?.title ?? row.slug,
-        latest_version: row.question_versions?.slice(-1)[0]?.version ?? null,
-        skill_ids: (row.question_skills ?? []).map((s) => s.skill_id),
-      })),
+      items: rows.map((row) => {
+        const latest =
+          [...(row.question_versions ?? [])].sort((a, b) => b.version - a.version)[0] ?? null
+        return {
+          id: row.id,
+          slug: row.slug,
+          type: row.type,
+          difficulty: row.difficulty,
+          status: row.status,
+          created_at: row.created_at,
+          updated_at: row.updated_at,
+          title: latest?.title ?? row.slug,
+          latest_version: latest?.version ?? null,
+          skill_ids: (row.question_skills ?? []).map((s) => s.skill_id),
+        }
+      }),
       total: count ?? 0,
       page,
       pageSize: PAGE_SIZE,
@@ -110,6 +114,25 @@ export async function POST(request: Request) {
 
     const status: QuestionStatus = QUESTION_STATUSES.includes(body.status) ? body.status : 'draft'
 
+    const weights = body.skill_weights as Record<string, number> | undefined
+    const weightIds = Object.keys(weights ?? {}).map(Number)
+    if (weightIds.length === 0) throw new Error('حداقل یک مهارت باید انتخاب شود.')
+
+    const technologyId = Number(body.technology_id)
+    if (!Number.isInteger(technologyId) || technologyId <= 0)
+      throw new Error('تکنولوژی سؤال الزامی است.')
+    const { data: validSkills, error: skillsError } = await svc
+      .from('skills')
+      .select('id')
+      .eq('technology_id', technologyId)
+      .eq('active', true)
+    if (skillsError) throw new Error(skillsError.message)
+    const validSkillIds = new Set((validSkills ?? []).map((s: { id: number }) => s.id))
+    for (const skillId of weightIds) {
+      if (!validSkillIds.has(skillId))
+        throw new Error(`مهارت ${skillId} به تکنولوژی انتخاب‌شده تعلق ندارد یا غیرفعال است.`)
+    }
+
     const { data: question, error } = await svc
       .from('questions')
       .insert({ slug, type: body.type, difficulty, status })
@@ -129,20 +152,13 @@ export async function POST(request: Request) {
       })
       if (vError) throw new Error(vError.message)
 
-      const weights = body.skill_weights as Record<string, number> | undefined
-      if (weights && typeof weights === 'object' && Object.keys(weights).length > 0) {
-        const rows = Object.entries(weights).map(([skillId, weight]) => ({
-          question_id: question.id,
-          skill_id: Number(skillId),
-          weight: Math.max(0, Math.min(1, Number(weight))),
-        }))
-        for (const row of rows) {
-          if (!Number.isInteger(row.skill_id) || row.skill_id <= 0)
-            throw new Error('شناسه مهارت نامعتبر است.')
-        }
-        const { error: sError } = await svc.from('question_skills').insert(rows)
-        if (sError) throw new Error(sError.message)
-      }
+      const rows = weightIds.map((skillId) => ({
+        question_id: question.id,
+        skill_id: skillId,
+        weight: Math.max(0, Math.min(1, Number(weights![String(skillId)]))),
+      }))
+      const { error: sError } = await svc.from('question_skills').insert(rows)
+      if (sError) throw new Error(sError.message)
 
       const tagIds = (body.tag_ids ?? []) as Array<string | number>
       if (Array.isArray(tagIds) && tagIds.length > 0) {
@@ -211,30 +227,38 @@ export async function PATCH(request: Request) {
         .single()
       if (error) throw new Error(error.message)
 
-      if (latest) {
-        await svc.from('question_versions').insert({
-          question_id: copy.id,
-          version: 1,
-          title: latest.title,
-          description: latest.description,
-          content: latest.content,
-          test_cases: latest.test_cases,
-          language: latest.language,
-        })
-      }
-      if ((skills ?? []).length > 0) {
-        await svc
-          .from('question_skills')
-          .insert((skills as Array<{ skill_id: number; weight: number | null }>).map((s) => ({
+      try {
+        if (latest) {
+          const { error: vError } = await svc.from('question_versions').insert({
             question_id: copy.id,
-            skill_id: s.skill_id,
-            weight: s.weight,
-          })))
-      }
-      if ((tags ?? []).length > 0) {
-        await svc
-          .from('question_tag_map')
-          .insert((tags as Array<{ tag_id: number }>).map((t) => ({ question_id: copy.id, tag_id: t.tag_id })))
+            version: 1,
+            title: latest.title,
+            description: latest.description,
+            content: latest.content,
+            test_cases: latest.test_cases,
+            language: latest.language,
+          })
+          if (vError) throw new Error(vError.message)
+        }
+        if ((skills ?? []).length > 0) {
+          const { error: sError } = await svc
+            .from('question_skills')
+            .insert((skills as Array<{ skill_id: number; weight: number | null }>).map((s) => ({
+              question_id: copy.id,
+              skill_id: s.skill_id,
+              weight: s.weight,
+            })))
+          if (sError) throw new Error(sError.message)
+        }
+        if ((tags ?? []).length > 0) {
+          const { error: tError } = await svc
+            .from('question_tag_map')
+            .insert((tags as Array<{ tag_id: number }>).map((t) => ({ question_id: copy.id, tag_id: t.tag_id })))
+          if (tError) throw new Error(tError.message)
+        }
+      } catch (err) {
+        await svc.from('questions').delete().eq('id', copy.id).eq('status', 'draft')
+        throw err
       }
       return { question: copy }
     }

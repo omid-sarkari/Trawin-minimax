@@ -1,16 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { updateSession } from "@/lib/supabase/middleware";
+import { updateSession } from "@/lib/supabase/session";
 
-const PROTECTED_PREFIXES = ["/dashboard", "/company", "/admin"];
-
-function adminEmails(): string[] {
-  return (process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? "")
-    .split(",")
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean);
-}
-
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { response, user } = await updateSession(request);
   const path = request.nextUrl.pathname;
 
@@ -30,6 +21,15 @@ export async function middleware(request: NextRequest) {
   }
 
   return response;
+}
+
+const PROTECTED_PREFIXES = ["/dashboard", "/company", "/admin"];
+
+function adminEmails(): string[] {
+  return (process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
 }
 
 export const config = {

@@ -40,7 +40,10 @@ export default function AdminContentPage() {
   const [data, setData] = useState<Bootstrap | null>(null)
   const { flash, run } = useFlash()
 
-  const load = useCallback(() => fetchJson<Bootstrap>('/api/admin/bootstrap').then(setData).catch(() => {}), [])
+  const load = useCallback(
+    () => fetchJson<Bootstrap>('/api/admin/bootstrap?include_inactive=1').then(setData).catch(() => {}),
+    []
+  )
   useEffect(() => {
     load()
   }, [load])

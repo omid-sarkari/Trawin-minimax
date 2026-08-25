@@ -58,6 +58,7 @@ export default function BulkImportPage() {
         body: JSON.stringify({
           commit,
           json: jsonText,
+          technology_id: Number(technologyId),
           skill_weights: Object.fromEntries(Object.entries(skillWeights).map(([k, v]) => [k, v])),
         }),
       })

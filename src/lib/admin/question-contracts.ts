@@ -83,7 +83,9 @@ export function validateMcq(content: unknown): string | null {
     if (ids.has(opt.id)) return `شناسه گزینه تکراری است: ${opt.id}`
     ids.add(opt.id)
   }
-  if (!c.options.some((o) => o.is_correct)) return 'دقیقاً یک گزینه باید درست علامت بخورد.'
+  const correctCount = c.options.filter((o) => o.is_correct).length
+  if (correctCount === 0) return 'دقیقاً یک گزینه باید درست علامت بخورد.'
+  if (correctCount > 1) return 'فقط یک گزینه می‌تواند درست باشد.'
   return null
 }
 

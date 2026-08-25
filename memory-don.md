@@ -138,5 +138,51 @@
 - **بررسی زنده دیتابیس:** جدول جدا برای انواع سؤال وجود ندارد و این عمدی است (قرارداد Dash.md §10/§34: محتوا در question_versions.content JSONB)؛ اما ستون‌های `language` و `test_cases` برای کدینگ/دیباگ تاکنون پر نمی‌شدند. ۲۸ تگ موجود تأیید شد.
 - **بازنویسی ویزارد:** ارورهای زنده زیر فیلدها (چراغ «برای ادامه چه کم دارد») · راهنمای مثال بالای همه ورودی‌ها · پیش‌نمایش زنده جای خالی · ویرایشگر test_cases ساختاریافته → ستون واقعی test_cases · نرمال‌سازی constraints/examples به آرایه در save · حالت loading/error/retry برای bootstrap · بخش تگ‌ها پررنگ با شمارنده انتخاب.
 
+### ✅ مرحله ۱۰: ممیزی کامل طبق p.md — تأیید، اصلاح، مدرنیزه‌سازی
+**روش:** هر ادعا اول با کد/دیتابیس/docs رسمی راستی‌آزمایی شد؛ فقط موارد تأییدشده اصلاح شدند.
+
+**تأییدشده و اصلاح‌شده (STILL BROKEN → FIXED):**
+1. **MCQ چند پاسخ درست (مسیر تکی):** `validateMcq` فقط `some()` چک می‌کرد؛ حالا `filter(...).length === 1` — قرارداد واحد بین create و bulk.
+2. **bulk بدون ولیدیشن نوعی:** ویرایشگر دست‌ساز MCQ حذف شد؛ bulk حالا از همان `validateContentByType` استفاده می‌کند + تشخیص slug تکراری داخل دسته.
+3. **مهارت∉تکنولوژی در سرور:** هر دو مسیر POST تکی/bulk حالا `technology_id` می‌گیرند و با یک کوئری (`skills.active ∧ technology_id`) صحت همه مهارت‌ها را verify می‌کنند؛ wizard/bulk-page آن را می‌فرستند.
+4. **bootstrap غیرفعال‌ها:** پیش‌فرض فقط فعال؛ `?include_inactive=1` مخصوص صفحه مدیریت محتوا.
+5. **«آخرین نسخه» نامطمئن در لیست:** مرتب‌سازی JS بر اساس version نزولی قبل از انتخاب.
+6. **duplicate ناامن:** cleanup مانند مسیر create — حذف کپی هنگام شکست.
+7. **middleware منسوخ Next 16:** با docs رسمی نصب‌شده تأیید شد → رنیم به `proxy.ts` (export `proxy()`) و `src/lib/supabase/middleware.ts` → `session.ts`؛ تمام ارجاع‌ها جستجو/آپدیت شد (فقط import داخل proxy.ts).
+8. **CI روی Node 18:** آپدیت به `'24'` (LTS، تصمیم مدیر) + `engines: ">=20.9"` در package.json.
+9. **drift تایپ‌های legacy:** `types/index.ts` (بدون هیچ مصرف‌کننده) با اسکیمای واقعی هم‌راستا شد: QuestionType پنج‌گانه، Difficulty عددی 1-5، Exam/CodingEvent/Profile/Company مطابق generated types.
+
+**تأییدشده و سالم (VALID DESIGN / FALSE POSITIVE):**
+- allowlist+role دوگانه = bootstrap عمدی با محافظت self-lockout ✓ | service-role فقط سرور ✓ | Judge0 هنوز integration ندارد (فایل خالی؛ معماری provider برای فاز ۴) ✓ | mapping هویت با get_my_user_id ✓ | TS 6 → DEFERRED FOR COMPATIBILITY | Next/React فعلی stable ✓
+
+**تأیید نهایی:** tsc صفر خطا · next build موفق (کانوینشن proxy فعال) · تست پکیج ۲/۲ · git status دقیقاً فایل‌های مرتبط
+
+### ✅ مرحله ۱۱: Assessment Engine کامل (طبق p1.md) — runtime، Judge0 و UI
+**ممیزی قبل از کدنویسی (§1):**
+- اسکیمای زنده با Management API استخراج شد: هر ۳ جدول adaptive (`exam_selection_configs`, `question_selection_events`, `user_skill_states`) از قبل موجود بودند (migration زنده `add_adaptive_question_engine_state` که فایل محلی‌اش نیست) → فقط مهاجرت حداقلی لازم داشت.
+- **دقت هویتی حیاتی:** `question_selection_events.user_id` و `user_skill_states.user_id` به **auth.users** FK دارند ولی بقیه جداول به `public.users` — سرویس‌ها هر دو id را جدا نگه می‌دارند.
+- CHECKهای واقعی: exam_sessions.status = started/submitted/evaluating/completed/cancelled | exams = draft/published/archived/closed | code_submissions شامل plagiarized | evaluations.level = junior/mid/senior/expert.
+- داده seed واقعی: ۸۱ سؤال؛ codingها قرارداد قدیمی `{language, question, starter_code, expected_behavior}` بدون test_case → delivery/evaluator هر دو قرارداد را پوشش می‌دهند.
+
+**Migration حداقلی `20260825090000_assessment_runtime_version_pinning.sql`:**
+- `answers.question_version_id bigint NULL FK→question_versions` (version pinning §15) + seed `engine_versions('v1.0.0', active)` + ثبت در schema_migrations زنده. تایپ‌ها regenerate شد.
+
+**هسته سرور:**
+- `src/lib/assessment/`: errors.ts (تاکسونومی §51 + HTTP map)، types.ts (state machine، Client payloads)، code-execution/provider.ts (مرز Provider + تفکیک USER vs PROVIDER failure §24)، route-helpers.ts.
+- `src/lib/services/judge0.ts` (قبلاً خالی): client اختصاصی — X-Auth-Token فقط سرور، resolve زبان داینامیک از /languages خود instance، poll با backoff تا 20s، retry، fail-closed وقتی env نیست (§55). **باگ واقعی توسط تست گرفته شد:** readConfig توکن را نمی‌خواند!
+- سرویس‌ها در `src/services/assessment/`: exam-session (conditional UPDATE برای همه transitionها — برنده submit/expiry قطعی)، question-selection (Fixed deterministic + Adaptive MVP easy-first؛ pin نسخه داخل selection_reason JSONB؛ persist قبل از serve §7)، answer (upsert idempotent روی UNIQUE + freeze بعد submit)، code-execution (rate guard 20/min، تست مخفی هرگز به کلاینت نمی‌رود)، evaluation (MCQ/FillBlank نرمال‌سازی فارسی/عربی+ارقام، open_ended=pending_review خارج از نمره، coding از execution_results بدون اجرای مجدد)، skill-scoring (Elo-lite با K×uncertainty، آپدیت افزایشی).
+- API: `/api/assessment/exams`، `exams/[examId]/start`، `sessions/[sessionId]`(GET state/result)، `/answers` (PUT upsert)، `/submit`، `questions/[questionId]/code`، `/result`.
+
+**UI:**
+- `/dashboard/exams` لیست آزمون‌های published + nav جدید داشبورد + فعال شدن CTA قبلی («به‌زودی» حذف شد).
+- Runner در `src/components/assessment/ExamRunner.tsx`: recovery با start idempotent، تایمر نمایشیِ sync با سرور + auto-submit صفر، autosave debounce 700ms، ادیتور کد بدون dependency جدید (line number + Tab)، پنل نتیجه اجرا (تست مخفی بدون input/expected)، صفحه result.
+- ادمین (افزودنی، بدون دست‌زدن به فرم موجود): مدیریت سؤالات آزمون (جستجوی published، attach/detach، ترتیب/وزن، حالت انتخاب + سقف تعداد، انتشار/بستن با گارد «حداقل یک سؤال») + routeهای `[examId]` PATCH/questions.
+
+**تست و تحقیق صحت:**
+- jest ریشه (`npm test` = runtime + workspaces): ۳۲ تست واحد — state machine، استراتژی‌ها با fake thenable، sanitize (is_correct/hidden strip)، Judge0 با fetch mock (fail-closed، token leak، نگاشت statusها).
+- **Live acceptance §54** (`live-acceptance.test.ts`، فقط با SERVICE_KEY اجرا می‌شود و CI skip می‌کند): ساخت آزمون واقعی → session pinned → پاسخ idempotent → refresh recovery → submit → score=100 + level=expert + engine_version_id → double-submit همگرا → version pinning همه پاسخ‌ها ✓. پاکسازی کامل verify شد (صفر رکورد باقی‌مانده).
+
+**تأیید نهایی:** jest 37/37 · tsc صفر خطا · next build ✅ همه روت‌ها · CI (build+test) سازگار
+
 ---
-*آخرین بروزرسانی: ۲۰۲۶-۰۸-۲۲*
+*آخرین بروزرسانی: ۲۰۲۶-۰۸-۲۵*

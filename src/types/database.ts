@@ -88,6 +88,7 @@ export type Database = {
           id: number
           is_correct: boolean | null
           question_id: number
+          question_version_id: number | null
           session_id: string
           time_spent_seconds: number | null
         }
@@ -97,6 +98,7 @@ export type Database = {
           id?: never
           is_correct?: boolean | null
           question_id: number
+          question_version_id?: number | null
           session_id: string
           time_spent_seconds?: number | null
         }
@@ -106,6 +108,7 @@ export type Database = {
           id?: never
           is_correct?: boolean | null
           question_id?: number
+          question_version_id?: number | null
           session_id?: string
           time_spent_seconds?: number | null
         }
@@ -115,6 +118,13 @@ export type Database = {
             columns: ["question_id"]
             isOneToOne: false
             referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "answers_question_version_id_fkey"
+            columns: ["question_version_id"]
+            isOneToOne: false
+            referencedRelation: "question_versions"
             referencedColumns: ["id"]
           },
           {
@@ -889,6 +899,47 @@ export type Database = {
           },
         ]
       }
+      exam_selection_configs: {
+        Row: {
+          active: boolean
+          config: Json
+          created_at: string
+          exam_id: number
+          id: number
+          mode: string
+          target_question_count: number | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          config?: Json
+          created_at?: string
+          exam_id: number
+          id?: number
+          mode?: string
+          target_question_count?: number | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          config?: Json
+          created_at?: string
+          exam_id?: number
+          id?: number
+          mode?: string
+          target_question_count?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_selection_configs_exam_id_fkey"
+            columns: ["exam_id"]
+            isOneToOne: true
+            referencedRelation: "exams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exam_sessions: {
         Row: {
           exam_id: number
@@ -1399,6 +1450,74 @@ export type Database = {
           value?: string
         }
         Relationships: []
+      }
+      question_selection_events: {
+        Row: {
+          candidate_score: number | null
+          exam_id: number | null
+          id: number
+          question_id: number
+          selection_mode: string
+          selection_reason: Json
+          served_at: string
+          session_id: string | null
+          skill_id: number | null
+          user_id: string
+        }
+        Insert: {
+          candidate_score?: number | null
+          exam_id?: number | null
+          id?: number
+          question_id: number
+          selection_mode?: string
+          selection_reason?: Json
+          served_at?: string
+          session_id?: string | null
+          skill_id?: number | null
+          user_id: string
+        }
+        Update: {
+          candidate_score?: number | null
+          exam_id?: number | null
+          id?: number
+          question_id?: number
+          selection_mode?: string
+          selection_reason?: Json
+          served_at?: string
+          session_id?: string | null
+          skill_id?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_selection_events_exam_id_fkey"
+            columns: ["exam_id"]
+            isOneToOne: false
+            referencedRelation: "exams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "question_selection_events_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "question_selection_events_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "exam_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "question_selection_events_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       question_skills: {
         Row: {
@@ -2075,6 +2194,72 @@ export type Database = {
           },
         ]
       }
+      user_skill_states: {
+        Row: {
+          attempts: number
+          confidence: number
+          correct_count: number
+          created_at: string
+          current_level_id: number | null
+          id: number
+          incorrect_count: number
+          last_evaluated_at: string | null
+          metadata: Json
+          rating: number
+          skill_id: number
+          uncertainty: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          confidence?: number
+          correct_count?: number
+          created_at?: string
+          current_level_id?: number | null
+          id?: number
+          incorrect_count?: number
+          last_evaluated_at?: string | null
+          metadata?: Json
+          rating?: number
+          skill_id: number
+          uncertainty?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          confidence?: number
+          correct_count?: number
+          created_at?: string
+          current_level_id?: number | null
+          id?: number
+          incorrect_count?: number
+          last_evaluated_at?: string | null
+          metadata?: Json
+          rating?: number
+          skill_id?: number
+          uncertainty?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_skill_states_current_level_id_fkey"
+            columns: ["current_level_id"]
+            isOneToOne: false
+            referencedRelation: "skill_levels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_skill_states_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "skills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
           auth_user_id: string | null
@@ -2183,6 +2368,7 @@ export type Database = {
       }
     }
     Functions: {
+      admin_bulk_import_questions: { Args: { batch: Json }; Returns: Json }
       get_my_user_id: { Args: never; Returns: string }
       has_permission: { Args: { permission_name: string }; Returns: boolean }
     }

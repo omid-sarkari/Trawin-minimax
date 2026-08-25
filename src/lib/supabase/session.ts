@@ -1,8 +1,8 @@
 /**
- * Supabase Middleware Helper
+ * Supabase Session Helper
  *
  * Refreshes the auth session on every request and exposes the current user
- * to middleware.ts for protected-route checks.
+ * to proxy.ts for protected-route checks.
  */
 
 import { createServerClient } from "@supabase/ssr";

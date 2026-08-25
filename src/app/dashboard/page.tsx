@@ -18,6 +18,16 @@ const NAV = [
       </svg>
     ),
   },
+  {
+    href: '/dashboard/exams',
+    label: 'آزمون‌ها',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-[18px] w-[18px]">
+        <path d="M9 12l2 2 4-5" />
+        <rect x="4" y="3" width="16" height="18" rx="2" />
+      </svg>
+    ),
+  },
 ];
 
 const dateFormatter = new Intl.DateTimeFormat('fa-IR', { dateStyle: 'medium', timeStyle: 'short' });
@@ -84,22 +94,17 @@ export default async function DeveloperDashboardPage() {
       <section className="mt-8 overflow-hidden rounded-2xl border border-signal-500/20 bg-gradient-to-b from-signal-500/[0.07] to-transparent p-8">
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
           <div>
-            <div className="flex items-center gap-2.5">
-              <h2 className="text-xl font-semibold text-zinc-50">اولین آزمون تطبیقی‌ات را بده</h2>
-              <span className="rounded-full border border-flag-500/30 bg-flag-500/10 px-2.5 py-0.5 text-[11px] font-medium text-flag-300">
-                به‌زودی
-              </span>
-            </div>
+            <h2 className="text-xl font-semibold text-zinc-50">اولین آزمونت را بده</h2>
             <p className="mt-2 max-w-lg text-sm leading-7 text-zinc-400">
-              موتور سؤالات تطبیقی در حال آماده‌سازی است؛ به‌محض فعال شدن، همین‌جا می‌توانی مهارتت را اثبات کنی.
+              آزمون‌های منتشرشده را ببین، شروع کن و مهارتت را با نمره واقعی اثبات کن.
             </p>
           </div>
-          <button
-            disabled
-            className="inline-flex h-11 cursor-not-allowed items-center justify-center rounded-full bg-white/5 px-7 text-sm font-medium text-zinc-500"
+          <a
+            href="/dashboard/exams"
+            className="inline-flex h-11 items-center justify-center rounded-full bg-signal-500 px-7 text-sm font-semibold text-zinc-950 transition-colors hover:bg-signal-400"
           >
-            شروع آزمون
-          </button>
+            مشاهده آزمون‌ها
+          </a>
         </div>
       </section>
 
