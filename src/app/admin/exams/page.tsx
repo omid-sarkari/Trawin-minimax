@@ -173,7 +173,17 @@ function ExamQuestionManager({
 
   // Picker state
   const [search, setSearch] = useState('')
-  const [pickerResults, setPickerResults] = useState<Array<{ id: number; slug: string; type: string }>>([])
+  const [filterType, setFilterType] = useState('')
+  const [filterDifficulty, setFilterDifficulty] = useState('')
+  const [filterTechnology, setFilterTechnology] = useState('')
+  const [filterSkill, setFilterSkill] = useState('')
+  const [bootstrapData, setBootstrapData] = useState<{
+    technologies: Array<{ id: number; name: string }>
+    skills: Array<{ id: number; name: string; technology_id: number }>
+  }>({ technologies: [], skills: [] })
+  const [pickerResults, setPickerResults] = useState<
+    Array<{ id: number; slug: string; type: string; title?: string; difficulty?: number | null }>
+  >([])
   const [searching, setSearching] = useState(false)
   const [adding, setAdding] = useState(false)
 
@@ -194,24 +204,42 @@ function ExamQuestionManager({
 
   useEffect(() => {
     loadPanel()
+    // Bootstrap taxonomy once for the filterable picker (§39).
+    fetchJson<{
+      technologies?: Array<{ id: number; name: string }>
+      skills?: Array<{ id: number; name: string; technology_id: number }>
+    }>('/api/admin/bootstrap')
+      .then((d) =>
+        setBootstrapData({ technologies: d.technologies ?? [], skills: d.skills ?? [] }),
+      )
+      .catch(() => {})
   }, [loadPanel])
 
   async function searchQuestions() {
-    if (search.trim().length < 2 && search.trim() !== '') return
     setSearching(true)
     try {
-      const q = search.trim()
-      const d = await fetchJson<{ items?: Array<{ id: number; slug: string; type: string }> }>(
-        `/api/admin/questions?status=published&page=1${q ? `&q=${encodeURIComponent(q)}` : ''}`,
-      )
+      const params = new URLSearchParams({ status: 'published', page: '1' })
+      if (search.trim().length >= 2) params.set('q', search.trim())
+      if (filterType) params.set('type', filterType)
+      if (filterDifficulty) params.set('difficulty', filterDifficulty)
+      if (filterTechnology) params.set('technology_id', filterTechnology)
+      if (filterSkill) params.set('skill_id', filterSkill)
+
+      const d = await fetchJson<{
+        items?: Array<{ id: number; slug: string; type: string; title?: string; difficulty?: number | null }>
+      }>(`/api/admin/questions?${params}`)
       const attached = new Set(rows.map((r) => r.question_id))
-      setPickerResults((d.items ?? []).filter((q2) => !attached.has(q2.id)).slice(0, 8))
+      setPickerResults((d.items ?? []).filter((q2) => !attached.has(q2.id)).slice(0, 10))
     } catch (err) {
       setError(err instanceof Error ? err.message : 'خطا در جستجو')
     } finally {
       setSearching(false)
     }
   }
+
+  const availableSkills = bootstrapData.skills.filter(
+    (s) => !filterTechnology || String(s.technology_id) === filterTechnology,
+  )
 
   async function attach(questionId: number) {
     setAdding(true)
@@ -290,14 +318,56 @@ function ExamQuestionManager({
         )}
       </div>
 
-      {/* Add question */}
+      {/* Add question — filterable picker (§39) */}
       <div className="space-y-2">
         <p className="text-xs font-medium text-zinc-400">افزودن سؤال منتشرشده</p>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+            className={`${inputClass} h-auto py-2 text-[11px]`}
+          >
+            <option value="">همه انواع</option>
+            {Object.entries(TYPE_LABELS).map(([k, v]) => (
+              <option key={k} value={k}>{v}</option>
+            ))}
+          </select>
+          <select
+            value={filterDifficulty}
+            onChange={(e) => setFilterDifficulty(e.target.value)}
+            className={`${inputClass} h-auto py-2 text-[11px]`}
+          >
+            <option value="">همه سطوح</option>
+            {[1, 2, 3, 4, 5].map((d) => (
+              <option key={d} value={d}>سختی {d}</option>
+            ))}
+          </select>
+          <select
+            value={filterTechnology}
+            onChange={(e) => { setFilterTechnology(e.target.value); setFilterSkill('') }}
+            className={`${inputClass} h-auto py-2 text-[11px]`}
+          >
+            <option value="">همه تکنولوژی‌ها</option>
+            {bootstrapData.technologies.map((t) => (
+              <option key={t.id} value={t.id}>{t.name}</option>
+            ))}
+          </select>
+          <select
+            value={filterSkill}
+            onChange={(e) => setFilterSkill(e.target.value)}
+            className={`${inputClass} h-auto py-2 text-[11px]`}
+          >
+            <option value="">همه مهارت‌ها</option>
+            {availableSkills.map((s) => (
+              <option key={s.id} value={s.id}>{s.name}</option>
+            ))}
+          </select>
+        </div>
         <div className="flex gap-2">
           <input
             dir="ltr"
             className={`${inputClass} flex-1 text-left font-mono text-xs`}
-            placeholder="جستجوی slug…"
+            placeholder="جستجوی آزاد (اختیاری)…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && searchQuestions()}

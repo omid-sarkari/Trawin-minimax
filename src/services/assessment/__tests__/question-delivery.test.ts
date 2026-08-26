@@ -79,6 +79,31 @@ describe('sanitizeQuestionForClient — coding legacy + wizard contracts', () =>
   })
 })
 
+describe('sanitizeQuestionForClient — fill_blank contracts', () => {
+  it('supports BOTH wizard and legacy seeded shapes', () => {
+    const wizard = sanitizeQuestionForClient('fill_blank', 1, 1, 1, version({
+      content: {
+        question_with_blank: 'با ___ مقدار پیش‌فرض بده.',
+        accepted_answers: ['='],
+      },
+    }))
+    expect(wizard.body).toBe('با ___ مقدار پیش‌فرض بده.')
+
+    const legacy = sanitizeQuestionForClient('fill_blank', 1, 2, 1, version({
+      content: {
+        question: 'کلمه کلیدی ____ برای بازگشت نتیجه.',
+        accepted_answers: ['return'],
+        answer: 'return', // legacy correct-answer field
+      },
+    }))
+    expect(legacy.body).toBe('کلمه کلیدی ____ برای بازگشت نتیجه.')
+    // Legacy correct answers must never reach the client.
+    const serialized = JSON.stringify(legacy)
+    expect(serialized).not.toContain('"answer"')
+    expect(serialized).not.toContain('accepted_answers')
+  })
+})
+
 describe('extractPublicTestCases', () => {
   it('drops hidden and malformed entries', () => {
     const pub = extractPublicTestCases([

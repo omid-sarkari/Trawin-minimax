@@ -118,71 +118,84 @@
 - **`/company`:** بن خوشامد با نام شرکت از metadata، سه ماژول placeholder (آگهی‌ها/نامزدها/چالش اختصاصی) با بج «به‌زودی».
 - تأیید: tsc ✅ | next build ✅ (همه روت‌ها)
 
-### ✅ مرحله ۸: فاز ۳ — پنل مدیریت کامل (طبق سند Dash.md)
-**دیتابیس (اعمال مستقیم + verify زنده):**
-- Migration `20260822140000_admin_bulk_import.sql`: ارتقای نقش امید به `admin` در users + تابع `admin_bulk_import_questions(batch jsonb)` (SECURITY DEFINER، تراکنش اتمی همه‌یا‌هیچ) با REVOKE از anon/authenticated و GRANT فقط به service_role.
-- **تست واقعی اتمی بودن:** دسته شامل ردیف خراب → reject شد و هیچ ردیف یتیمی نماند ✓؛ دسته سالم → imported:1 ✓؛ داده تست پاک‌سازی شد.
-
-**معماری امنیت:** مرورگر ← API Route (assertAdmin: session + allowlist یا role='admin' سمت سرور) ← service-role client ← دیتابیس. کلید service هرگز به مرورگر نمی‌رود. RLS فعلی فقط SELECT دارد — پس همه نوشتن‌ها از همین مسیر می‌گذرند.
-
-**قرارداد JSON سؤال** متمرکز در `src/lib/admin/question-contracts.ts` (MCQ options داخل question_versions.content با is_correct صریح؛ ۵ نوع؛ سختی ۱-۵ عددی با لیبل فارسی).
-
-**API Routes:** bootstrap | technologies | skills | tags | questions (GET فیلتر+صفحه‌بندی، POST ساخت کامل، PATCH status/duplicate) | questions/bulk (preview→commit اتمی) | users (لیست/فیلتر، مسدودسازی/تغییر نقش با جلوگیری از self-lockout) | exams.
-
-**UI `/admin`:** layout با گارد دوگانه + DashboardShell مشترک؛ نمای کلی با آمار واقعی؛ لیست سؤالات (۶ فیلتر + انتشار/پیش‌نویس/کپی/جزئیات + Pager)؛ ویزارد ۳مرحله‌ای سؤال جدید (طبقه‌بندی cascade تکنولوژی→مهارت با وزن + هشدار نرمال‌سازی، ویرایشگر اختصاصی هر نوع: MCQ گزینه پویا/FillBlank/تشریحی/Coding/Debugging، پیش‌نمایش JSON، ذخیره پیش‌نویس یا انتشار)؛ ایمپورت گروهی (پیش‌فرض‌های ارثی + پیش‌نمایش خطای ردیف‌به‌ردیف + commit اتمی + قالب نمونه قابل کپی)؛ محتوا (تب‌های Tech/Skill/Tag با create و toggle فعال/غیرفعال — soft-disable نه delete)؛ کاربران (جستجو/فیلتر نقش-وضعیت/مسدودسازی/رفع/تغییر نقش)؛ آزمون‌ها (ساخت + لیست؛ افزودن سؤال به آزمون = قدم بعدی).
-
-**تأیید نهایی:** tsc ✅ | next build ✅ همه روت‌های admin | تست RPC اتمی ✅
-
-### ✅ مرحله ۹: رفع باگ UX ویزارد سؤال + هم‌راستایی کامل با قرارداد دیتابیس
-- **باگ اصلی:** در مرحله ۲ ویزارد، شکست اعتبارسنجی فقط دکمه را بی‌صدا disable می‌کرد (هیچ پیامی نبود) + خطای bootstrap هم بی‌صدا قورت داده می‌شد.
-- **بررسی زنده دیتابیس:** جدول جدا برای انواع سؤال وجود ندارد و این عمدی است (قرارداد Dash.md §10/§34: محتوا در question_versions.content JSONB)؛ اما ستون‌های `language` و `test_cases` برای کدینگ/دیباگ تاکنون پر نمی‌شدند. ۲۸ تگ موجود تأیید شد.
-- **بازنویسی ویزارد:** ارورهای زنده زیر فیلدها (چراغ «برای ادامه چه کم دارد») · راهنمای مثال بالای همه ورودی‌ها · پیش‌نمایش زنده جای خالی · ویرایشگر test_cases ساختاریافته → ستون واقعی test_cases · نرمال‌سازی constraints/examples به آرایه در save · حالت loading/error/retry برای bootstrap · بخش تگ‌ها پررنگ با شمارنده انتخاب.
-
-### ✅ مرحله ۱۰: ممیزی کامل طبق p.md — تأیید، اصلاح، مدرنیزه‌سازی
-**روش:** هر ادعا اول با کد/دیتابیس/docs رسمی راستی‌آزمایی شد؛ فقط موارد تأییدشده اصلاح شدند.
-
-**تأییدشده و اصلاح‌شده (STILL BROKEN → FIXED):**
-1. **MCQ چند پاسخ درست (مسیر تکی):** `validateMcq` فقط `some()` چک می‌کرد؛ حالا `filter(...).length === 1` — قرارداد واحد بین create و bulk.
-2. **bulk بدون ولیدیشن نوعی:** ویرایشگر دست‌ساز MCQ حذف شد؛ bulk حالا از همان `validateContentByType` استفاده می‌کند + تشخیص slug تکراری داخل دسته.
-3. **مهارت∉تکنولوژی در سرور:** هر دو مسیر POST تکی/bulk حالا `technology_id` می‌گیرند و با یک کوئری (`skills.active ∧ technology_id`) صحت همه مهارت‌ها را verify می‌کنند؛ wizard/bulk-page آن را می‌فرستند.
-4. **bootstrap غیرفعال‌ها:** پیش‌فرض فقط فعال؛ `?include_inactive=1` مخصوص صفحه مدیریت محتوا.
-5. **«آخرین نسخه» نامطمئن در لیست:** مرتب‌سازی JS بر اساس version نزولی قبل از انتخاب.
-6. **duplicate ناامن:** cleanup مانند مسیر create — حذف کپی هنگام شکست.
-7. **middleware منسوخ Next 16:** با docs رسمی نصب‌شده تأیید شد → رنیم به `proxy.ts` (export `proxy()`) و `src/lib/supabase/middleware.ts` → `session.ts`؛ تمام ارجاع‌ها جستجو/آپدیت شد (فقط import داخل proxy.ts).
-8. **CI روی Node 18:** آپدیت به `'24'` (LTS، تصمیم مدیر) + `engines: ">=20.9"` در package.json.
-9. **drift تایپ‌های legacy:** `types/index.ts` (بدون هیچ مصرف‌کننده) با اسکیمای واقعی هم‌راستا شد: QuestionType پنج‌گانه، Difficulty عددی 1-5، Exam/CodingEvent/Profile/Company مطابق generated types.
-
-**تأییدشده و سالم (VALID DESIGN / FALSE POSITIVE):**
-- allowlist+role دوگانه = bootstrap عمدی با محافظت self-lockout ✓ | service-role فقط سرور ✓ | Judge0 هنوز integration ندارد (فایل خالی؛ معماری provider برای فاز ۴) ✓ | mapping هویت با get_my_user_id ✓ | TS 6 → DEFERRED FOR COMPATIBILITY | Next/React فعلی stable ✓
-
-**تأیید نهایی:** tsc صفر خطا · next build موفق (کانوینشن proxy فعال) · تست پکیج ۲/۲ · git status دقیقاً فایل‌های مرتبط
-
 ### ✅ مرحله ۱۱: Assessment Engine کامل (طبق p1.md) — runtime، Judge0 و UI
-**ممیزی قبل از کدنویسی (§1):**
-- اسکیمای زنده با Management API استخراج شد: هر ۳ جدول adaptive (`exam_selection_configs`, `question_selection_events`, `user_skill_states`) از قبل موجود بودند (migration زنده `add_adaptive_question_engine_state` که فایل محلی‌اش نیست) → فقط مهاجرت حداقلی لازم داشت.
+**ممیزی قبل از کدنویسی:**
+- اسکیمای زنده با Management API استخراج شد: جدول‌های adaptive (`exam_selection_configs`, `question_selection_events`, `user_skill_states`) از قبل موجود بودند → فقط مهاجرت حداقلی لازم داشت.
 - **دقت هویتی حیاتی:** `question_selection_events.user_id` و `user_skill_states.user_id` به **auth.users** FK دارند ولی بقیه جداول به `public.users` — سرویس‌ها هر دو id را جدا نگه می‌دارند.
-- CHECKهای واقعی: exam_sessions.status = started/submitted/evaluating/completed/cancelled | exams = draft/published/archived/closed | code_submissions شامل plagiarized | evaluations.level = junior/mid/senior/expert.
-- داده seed واقعی: ۸۱ سؤال؛ codingها قرارداد قدیمی `{language, question, starter_code, expected_behavior}` بدون test_case → delivery/evaluator هر دو قرارداد را پوشش می‌دهند.
+- CHECKهای واقعی دیتابیس: exam_sessions.status = started/submitted/evaluating/completed/cancelled | exams = draft/published/archived/closed | evaluations.level = junior/mid/senior/expert.
+- داده seed واقعی: ۸۱ سؤال با قرارداد قدیمی (fill_blank از کلید `question` نه `question_with_blank`) → delivery هر دو قرارداد را پوشش می‌دهد.
 
-**Migration حداقلی `20260825090000_assessment_runtime_version_pinning.sql`:**
-- `answers.question_version_id bigint NULL FK→question_versions` (version pinning §15) + seed `engine_versions('v1.0.0', active)` + ثبت در schema_migrations زنده. تایپ‌ها regenerate شد.
+**Migration زنده `20260825090000_assessment_runtime_version_pinning.sql`:**
+- `answers.question_version_id bigint FK→question_versions` (version pinning) + seed `engine_versions('v1.0.0', active)` + ثبت در schema_migrations. تایپ‌ها regenerate شد (۶۱→۶۵ جدول بعداً).
 
 **هسته سرور:**
-- `src/lib/assessment/`: errors.ts (تاکسونومی §51 + HTTP map)، types.ts (state machine، Client payloads)، code-execution/provider.ts (مرز Provider + تفکیک USER vs PROVIDER failure §24)، route-helpers.ts.
-- `src/lib/services/judge0.ts` (قبلاً خالی): client اختصاصی — X-Auth-Token فقط سرور، resolve زبان داینامیک از /languages خود instance، poll با backoff تا 20s، retry، fail-closed وقتی env نیست (§55). **باگ واقعی توسط تست گرفته شد:** readConfig توکن را نمی‌خواند!
-- سرویس‌ها در `src/services/assessment/`: exam-session (conditional UPDATE برای همه transitionها — برنده submit/expiry قطعی)، question-selection (Fixed deterministic + Adaptive MVP easy-first؛ pin نسخه داخل selection_reason JSONB؛ persist قبل از serve §7)، answer (upsert idempotent روی UNIQUE + freeze بعد submit)، code-execution (rate guard 20/min، تست مخفی هرگز به کلاینت نمی‌رود)، evaluation (MCQ/FillBlank نرمال‌سازی فارسی/عربی+ارقام، open_ended=pending_review خارج از نمره، coding از execution_results بدون اجرای مجدد)، skill-scoring (Elo-lite با K×uncertainty، آپدیت افزایشی).
-- API: `/api/assessment/exams`، `exams/[examId]/start`، `sessions/[sessionId]`(GET state/result)، `/answers` (PUT upsert)، `/submit`، `questions/[questionId]/code`، `/result`.
+- `src/lib/assessment/`: errors.ts (تاکسونومی خطا + HTTP map)، types.ts (state machine + Client payloads)، code-execution/provider.ts (مرز Provider + تفکیک USER vs PROVIDER failure)، route-helpers.ts.
+- `src/lib/services/judge0.ts`: client اختصاصی — X-Auth-Token فقط سرور، resolve زبان از /languages خود instance، poll با backoff، fail-closed بدون env. **باگ واقعی توسط تست گرفته شد:** readConfig توکن را نمی‌خواند!
+- سرویس‌ها در `src/services/assessment/`: exam-session (conditional UPDATE برای همه transitionها)، question-selection (Fixed deterministic + Adaptive MVP؛ pin نسخه داخل selection_reason JSONB)، answer (upsert idempotent روی UNIQUE(session,question))، code-execution (rate guard، تست مخفی هرگز به کلاینت نمی‌رود)، evaluation (نرمال‌سازی فارسی/عربی، open_ended=pending_review خارج از نمره)، skill-scoring (Elo-lite روی user_skill_states).
+- API: `/api/assessment/*` — exams list، start، session state، answers upsert، submit، code run، result.
 
-**UI:**
-- `/dashboard/exams` لیست آزمون‌های published + nav جدید داشبورد + فعال شدن CTA قبلی («به‌زودی» حذف شد).
-- Runner در `src/components/assessment/ExamRunner.tsx`: recovery با start idempotent، تایمر نمایشیِ sync با سرور + auto-submit صفر، autosave debounce 700ms، ادیتور کد بدون dependency جدید (line number + Tab)، پنل نتیجه اجرا (تست مخفی بدون input/expected)، صفحه result.
-- ادمین (افزودنی، بدون دست‌زدن به فرم موجود): مدیریت سؤالات آزمون (جستجوی published، attach/detach، ترتیب/وزن، حالت انتخاب + سقف تعداد، انتشار/بستن با گارد «حداقل یک سؤال») + routeهای `[examId]` PATCH/questions.
+**UI:** `/dashboard/exams` لیست آزمون‌ها + Runner کامل (recovery، تایمر sync با سرور، autosave، auto-submit، ادیتور کد، پنل نتیجه اجرا). ادمین: مدیریت سؤالات آزمون (attach/detach/order/weight/mode/publish).
 
-**تست و تحقیق صحت:**
-- jest ریشه (`npm test` = runtime + workspaces): ۳۲ تست واحد — state machine، استراتژی‌ها با fake thenable، sanitize (is_correct/hidden strip)، Judge0 با fetch mock (fail-closed، token leak، نگاشت statusها).
-- **Live acceptance §54** (`live-acceptance.test.ts`، فقط با SERVICE_KEY اجرا می‌شود و CI skip می‌کند): ساخت آزمون واقعی → session pinned → پاسخ idempotent → refresh recovery → submit → score=100 + level=expert + engine_version_id → double-submit همگرا → version pinning همه پاسخ‌ها ✓. پاکسازی کامل verify شد (صفر رکورد باقی‌مانده).
+**تست:** jest ریشه — ۳۲ تست واحد + Live acceptance §54 (ساخت آزمون واقعی → session pinned → پاسخ → submit → score=100 + engine_version_id → double-submit همگرا). پاکسازی کامل verify شد.
 
-**تأیید نهایی:** jest 37/37 · tsc صفر خطا · next build ✅ همه روت‌ها · CI (build+test) سازگار
+### ✅ مرحله ۱۲: Onboarding + Living Resume + Plans + Visibility (طبق p3.md)
+**ممیزی:** `ResumeBuilderService`/`ResumeStorageService` قبلاً DEAD CODE بودند (به هیچ روت وصل نبودند)؛ RBAC موجود (permissions + has_permission RPC)؛ users.username با ایندکس UNIQUE موجود ولی case-sensitive.
+
+**Migration زنده `20260826080000_onboarding_resume_plans_visibility.sql` (همه افزودنی):**
+1. profiles +۶ ستون: headline, target_role, work_preference[], primary_technology_id, onboarding_completed, onboarding_data jsonb
+2. plans (free/pro seed) + user_plans — billing آینده فقط این جدول را می‌نویسد
+3. resume_visibility_rules — ۱۹ قانون seed برای developer/company/pro؛ سرور اعمال می‌کند نه CSS
+4. developer_resume_sections — بخش‌های سفارشی هر کاربر (toggleable، managed_by developer|admin)
+5. ایندکس یکتای `lower(username)` (case-insensitive)
+
+**هسته جدید:**
+- `src/lib/profile/`: username-policy.ts (لیست رزرو متمرکز)، entitlements.ts (Feature→Plan→Entitlement)، completeness.ts (مدل وزنی ۱۰ قانونی)، recommendation.ts (قوانین قطعی قابل‌توضیح)، visibility.ts
+- `src/services/profile.service.ts` — آنبردینگ step-by-step با persist، claim username با CI-check، update profile با validation
+- `src/services/resume/living-resume.service.ts` — رزومه DERIVED از evaluations/skill_scores؛ تفکیک خوداظهاری از تأییدشده؛ فیلتر visibility سمت سرور + PRIVACY_FLOORS (سیگنال رفتاری هرگز به شرکت نمی‌رود)؛ company view اصلاً completeness/analytics را برنمی‌گرداند
+
+**API:** `/api/profile/onboarding` · `/api/profile` PUT · `/api/profile/avatar` (آپلود Storage) · `/api/profile/username` · `/api/resume/me` · `/api/resume/sections` CRUD · ادمین: `/api/admin/resumes` جستجوی صفحه‌بندی‌شده، `[userId]` نمای کامل، `[userId]/sections` CRUD ادمینی، `[userId]/plan` grant/revoke Pro، `/api/admin/resume-config`
+
+**UI:** ویزارد آنبردینگ ۵ مرحله‌ای (`/dashboard/onboarding`) با ذخیره هر step · گیت داشبورد §7 · کارت «اولین آزمون» شرطی روی داده واقعی (بدون localStorage) · کارت «قدم بعدی تو» با پیشنهاد explainable · `/dashboard/resume` رزومه زنده با حلقه completeness و مهارت‌های تأییدشده متمایز · `/dashboard/profile` ادیتور کامل با آپلود عکس و username claim چک زنده · ادمین: `/admin/resumes` جستجو، `[userId]` نمای کامل + toggle Pro + مدیریت بخش‌ها، `/admin/resume-config` سوییچ‌های visibility
+
+**Judge0 دست نخورد (§37)**؛ فقط CodeView حالا Monaco دارد (@monaco-editor/react، تم trawin-dark، سؤال بالای ادیتور §38). Exam builder picker ارتقا: فیلتر type/difficulty/technology/skill cascade (§39).
+
+### ✅ مرحله ۱۳: رفع ۴ باگ گزارش‌شده مدیر
+1. **کرش نمای رزومه ادمین** (`Cannot read properties of undefined 'fullName'`): ریشه — `withAdmin` نتیجه handler را در `Response.json` می‌پیچد؛ route `/api/admin/resumes/[userId]` خودش `Response.json` برمی‌گرداند → خروجی `{}` می‌شد. فیکس: برگرداندن object ساده. الگوی مشکل در کل کدبیس grep شد — فقط همین یک route بود.
+2. **آپلود عکس پروفایل**: endpoint واقعی `POST /api/profile/avatar` ساخته شد (multipart، JPG/PNG/WebP، ≤۲MB، مسیر namespaced per-user در bucket موجود public `avatars`، آپدیت profiles.avatar_url). UI: file-picker با preview و حالت uploading جای input URL نشسته.
+3. **فیلد تجربه کار نمی‌کرد**: `Number(e.target.value)||0` باعث می‌شد پاک کردن رقم → 0 قفل شود. فیکس: state خام متنی + parse فقط هنگام save (clamp ۰-۶۰).
+4. **سؤال fill_blank نمایش داده نمی‌شد**: seed های قدیمی صورت سؤال را در کلید `question` دارند نه `question_with_blank`. فیکس در question-delivery: fallback chain + تست واحد جدید که تضمین می‌کند فیلدهای legacy `answer`/`accepted_answers` هرگز به کلاینت نروند.
+
+⚠️ **هشدار مهم برای سشن‌های بعدی:** این فایل یک بار به‌خاطر revert شدن تغییرات commitنشده به عقب برگشت (مراحل ۱۱-۱۲ پاک شدند و بازنویسی شدند). **قبل از هر reset/checkout، تغییرات memory-don.md را کامیت یا stash کنید.**
+
+**تأیید نهایی مرحله ۱۳:** jest 45/45 واحد + ۷/۷ live p3 · tsc صفر · next build ✅
+
+### ✅ مرحله ۱۴: موتور شواهد تأیید مهارت + بهبودهای UX رزومه و داشبورد
+**مشکل بزرگ رفع‌شده:** مهارت با ۱-۲ سؤال «تأییدشده» می‌شد! حالا تصمیم از **جداول موتور ارزیابی** می‌آید:
+**Migration زنده `20260826120000_skill_verification_policy.sql`:**
+- seed قانون `skill_verification` در `evaluation_rules` + `rule_versions` v1 با شرایط JSONB: تأییدشده = ≥۲۰۰ سؤال نمره‌داده ∧ ≥۵ آزمون کامل ∧ ≥۳ پروژه/مسابقه ∧ نمره ≥۷۰ | در حال شکل‌گیری = ≥۳۰ سؤال ∧ ≥۱ آزمون ∧ نمره ≥۵۰. هر ویرایش ادمین = نسخه جدید (تاریخچه حفظ می‌شود).
+
+**سرویس:** `living-resume.service.ts` — `loadVerificationPolicy()` از جداول موتور، `collectEvidence()` شمارش per-skill از داده کانونیکال (answers×question_skills×exam_sessions در یک join؛ پروژه‌ها از developer_resume_sections)، تابع خالص `computeVerificationLevel` (none/emerging/verified/expert — قابل تست واحد)، `VerifiedSkill.level/levelLabel/evidence{gradedQuestions,correctRate,completedExams,projects}`. بخش **تحلیل پیشرفته PRO**: نقاط قوت (≥۸۰٪) و ضعف (<۶۰٪) با یادداشت عملی — فقط وقتی plan=pro و فقط نمای دولوپر.
+
+**ادمین:** صفحه resume-config حالا ادیتور سیاست تأیید دارد (ورودی عددی + clamp سمت سرور + قاعده «تأیید باید سخت‌گیرانه‌تر از شکل‌گیری باشد») → ذخیره = نسخه جدید rule_versions.
+
+**UX فیکس‌ها:** فرم بخش‌های رزومه placeholder داینامیک per-kind (پروژه/تجربه/تحصیلات/مسابقه/گواهینامه/لینک هرکدام متن مخصوص) · کلیک روی هر بخش = باز شدن محتوای کامل (توضیح+لینک) هم در نمای دولوپر هم ادمین · آواتار کاربر در sidebar داشبورد + چیپ PRO هدر (از EntitlementService) · Monaco: پین CDN jsdelivr@0.52.2 (workers کامل = IntelliSense واقعی HTML/CSS/TS) + گزینه‌های صریح suggestion.
+
+**دیتابیس مرتبط با آینده (برای موتور رفتاری بعدی):** clipboard_markers(marker_type/hash/is_internal) · code_metrics(metric_type/value) · coding_events(event_type/source) · ai_detection_results(detection_type/probability/result) · editor_events(payload) — همه موجود؛ لایه تصمیم بعدی باید از همین‌ها signal بسازد (نسبت paste→run فوری، حجم کد AI، الگوی خواندن قبل از اجرا).
+
+**تأیید نهایی مرحله ۱۴:** jest 51 کل (۳۸ واحد پاس + ۱۳ live skip بدون env) · live p3 ۷/۷ ✓ · tsc صفر · build ✅
+
+### ✅ مرحله ۱۵: فیکس ورودی سیاست + آواتار/PRO در هدر + سند درک پروژه
+1. **ورودی‌های «قواعد تأیید مهارت» تایپ نمی‌شد:** همان باگ coercion (`Number('')→0`). فیکس: draft متنی با فیلتر فقط-رقم، parse/clamp هنگام save، فلگ dirty تا reload وسط تایپ، hint زیر هر فیلد. (فایل: admin/resume-config/page.tsx)
+2. **آواتار+PRO در داشبورد:** قبلاً فقط sidebar بود؛ حالا هدر بالا هم (موبایل‌پسند) — DashboardShell props `avatarUrl`/`planBadge`.
+3. **mythink.md ساخته شد:** سند فارسیِ درک کامل پروژه برای سشن‌های بعدی — نقشه ۶۵ جدول به تفکیک دامنه، قرارداد هویت دو لایه و استثناهایش، موتور تصمیم (engine_versions/rule_versions)، تله‌متری رفتاری و سیگنال‌های آینده (paste-rate, AI-ratio)، قراردادهای طلایی غیرقابل‌شکست، و نقشه راه پیشنهادی (موتور رفتاری v0 → نمای شرکت → مسابقات → JPlag → snapshot → adaptive واقعی).
+
+**دیتابیس کامل بازدید شد (داخل Supabase):** ۶۵ جدول عمومی + storage (avatars/resumes/company-assets) + توابع (handle_new_user, get_my_user_id, has_permission, admin_bulk_import_questions, rls_auto_enable, set_updated_at) + ۶۰ پالیسی RLS روی ۵۸ جدول + گراف کامل FK ثبت شد در mythink.md.
+
+### ✅ مرحله ۱۶: اسکیمای صددرصدی + سند تحلیل mythink1.md
+- **اسکیمای کامل استخراج و خوانده شد:** هر ۶۵ جدول ستون‌به‌ستون (all_columns)، هر ۷۳ FK با جفت‌ستون دقیق، همه CHECK/UNIQUE (شامل status های hiring: applications/interviews/jobs/proctoring/processing_jobs)، ۶۰ پالیسی RLS، توابع، view ها.
+- **TRAWIN_MASTER_CONTEXT.md کامل خوانده شد** (هر ۵ بخش: Identity/Vision/Philosophy → Core Systems → Trust/Hiring → Infrastructure → Roadmap/Governance).
+- **`mythink1.md` ساخته شد** (نسخه ۲ — فقط «تراوین چیست و کارش چیست»): تلاقی دیتابیس واقعی × Master Context شامل: پاسخ ساختاریافته به ۴ مشکل دنیای سنتی با سازوکارهای DB، هفت دامنه داده با نمودار روابط واقعی، جدول «وعده Master Context vs واقعیت دیتابیس» (۹ ردیف)، جمع‌بندی یک‌پاراگرافی موتور اعتماد + مدل درآمد (Pro + شرکت) + قراردادهای طلایی.
+- نکته کشف جدید از CHECKها: `applications.resume_id` یعنی درخواست استخدام به snapshot لحظه‌ای رزومه وصل است؛ `code_submissions.source_code_hash` از روز اول برای تشابه‌سنجی طراحی شده؛ `clipboard_markers.is_internal` تفکیک سیگنال داخلی/عمومی را پیش‌بینی کرده.
 
 ---
-*آخرین بروزرسانی: ۲۰۲۶-۰۸-۲۵*
+*آخرین بروزرسانی: ۲۰۲۶-۰۸-۲۶*

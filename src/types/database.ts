@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.17"
   }
   public: {
     Tables: {
@@ -718,6 +718,63 @@ export type Database = {
           },
         ]
       }
+      developer_resume_sections: {
+        Row: {
+          content: Json
+          created_at: string
+          display_order: number
+          id: number
+          is_visible: boolean
+          kind: string
+          managed_by: string
+          subtitle: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content?: Json
+          created_at?: string
+          display_order?: number
+          id?: never
+          is_visible?: boolean
+          kind: string
+          managed_by?: string
+          subtitle?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          display_order?: number
+          id?: never
+          is_visible?: boolean
+          kind?: string
+          managed_by?: string
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "developer_resume_sections_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "dashboard_user_overview"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "developer_resume_sections_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       editor_events: {
         Row: {
           created_at: string | null
@@ -1232,6 +1289,33 @@ export type Database = {
         }
         Relationships: []
       }
+      plans: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          description: string | null
+          id: number
+          name: string
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          description?: string | null
+          id?: never
+          name: string
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          description?: string | null
+          id?: never
+          name?: string
+        }
+        Relationships: []
+      }
       processing_jobs: {
         Row: {
           created_at: string | null
@@ -1373,10 +1457,16 @@ export type Database = {
           email: string | null
           experience_years: number | null
           full_name: string | null
+          headline: string | null
           id: string
+          onboarding_completed: boolean
+          onboarding_data: Json
+          primary_technology_id: number | null
           role_id: number | null
+          target_role: string | null
           updated_at: string | null
           user_id: string | null
+          work_preference: string[]
         }
         Insert: {
           avatar_url?: string | null
@@ -1386,10 +1476,16 @@ export type Database = {
           email?: string | null
           experience_years?: number | null
           full_name?: string | null
+          headline?: string | null
           id?: string
+          onboarding_completed?: boolean
+          onboarding_data?: Json
+          primary_technology_id?: number | null
           role_id?: number | null
+          target_role?: string | null
           updated_at?: string | null
           user_id?: string | null
+          work_preference?: string[]
         }
         Update: {
           avatar_url?: string | null
@@ -1399,12 +1495,25 @@ export type Database = {
           email?: string | null
           experience_years?: number | null
           full_name?: string | null
+          headline?: string | null
           id?: string
+          onboarding_completed?: boolean
+          onboarding_data?: Json
+          primary_technology_id?: number | null
           role_id?: number | null
+          target_role?: string | null
           updated_at?: string | null
           user_id?: string | null
+          work_preference?: string[]
         }
         Relationships: [
+          {
+            foreignKeyName: "profiles_primary_technology_id_fkey"
+            columns: ["primary_technology_id"]
+            isOneToOne: false
+            referencedRelation: "technologies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "profiles_user_id_fkey"
             columns: ["user_id"]
@@ -1782,6 +1891,36 @@ export type Database = {
           },
         ]
       }
+      resume_visibility_rules: {
+        Row: {
+          enabled: boolean
+          id: number
+          label: string
+          section_key: string
+          sort_order: number
+          updated_at: string
+          view_type: string
+        }
+        Insert: {
+          enabled?: boolean
+          id?: never
+          label: string
+          section_key: string
+          sort_order?: number
+          updated_at?: string
+          view_type: string
+        }
+        Update: {
+          enabled?: boolean
+          id?: never
+          label?: string
+          section_key?: string
+          sort_order?: number
+          updated_at?: string
+          view_type?: string
+        }
+        Relationships: []
+      }
       resumes: {
         Row: {
           active_version_id: number | null
@@ -2153,6 +2292,75 @@ export type Database = {
           slug?: string
         }
         Relationships: []
+      }
+      user_plans: {
+        Row: {
+          created_at: string
+          ends_at: string | null
+          granted_by: string | null
+          id: number
+          plan_id: number
+          starts_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          ends_at?: string | null
+          granted_by?: string | null
+          id?: never
+          plan_id: number
+          starts_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          ends_at?: string | null
+          granted_by?: string | null
+          id?: never
+          plan_id?: number
+          starts_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_plans_granted_by_fkey"
+            columns: ["granted_by"]
+            isOneToOne: false
+            referencedRelation: "dashboard_user_overview"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "user_plans_granted_by_fkey"
+            columns: ["granted_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_plans_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_plans_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "dashboard_user_overview"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "user_plans_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

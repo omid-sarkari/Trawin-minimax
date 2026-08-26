@@ -24,6 +24,8 @@ interface McqContent {
 
 interface FillBlankContent {
   question_with_blank?: string
+  /** Legacy seeded rows store the statement under `question`. */
+  question?: string
   accepted_answers?: string[]
   explanation?: string
 }
@@ -103,8 +105,9 @@ export function sanitizeQuestionForClient(
     }
     case 'fill_blank': {
       const c = content as unknown as FillBlankContent
-      base.body = c.question_with_blank ?? ''
-      // accepted_answers intentionally omitted.
+      // Legacy seeds use `question`; the wizard contract uses `question_with_blank`.
+      base.body = c.question_with_blank ?? c.question ?? ''
+      // accepted_answers (and any legacy `answer`) intentionally omitted.
       break
     }
     case 'open_ended': {

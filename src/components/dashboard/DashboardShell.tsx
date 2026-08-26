@@ -14,12 +14,18 @@ export function DashboardShell({
   navItems,
   userLabel,
   subtitle,
+  avatarUrl,
+  planBadge,
   children,
 }: {
   title: string;
   navItems: NavItem[];
   userLabel: string;
   subtitle?: string;
+  /** Developer's chosen avatar — shown in the header when provided. */
+  avatarUrl?: string | null;
+  /** Optional plan chip, e.g. "PRO" (§12). */
+  planBadge?: string | null;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -65,7 +71,28 @@ export function DashboardShell({
         </nav>
 
         <div className="mt-6 border-t border-white/5 pt-5">
-          <p className="truncate px-2 text-xs text-zinc-600">{userLabel}</p>
+          <div className="flex items-center gap-3 px-2">
+            {avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={avatarUrl}
+                alt=""
+                className="h-9 w-9 shrink-0 rounded-full border border-white/10 object-cover"
+              />
+            ) : (
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-xs text-zinc-500">
+                {(userLabel || '؟').slice(0, 1).toUpperCase()}
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xs text-zinc-600">{userLabel}</p>
+              {planBadge && (
+                <span className="mt-0.5 inline-block rounded-full border border-signal-500/40 bg-signal-500/15 px-1.5 py-px font-mono text-[9px] font-bold text-signal-300" dir="ltr">
+                  {planBadge}
+                </span>
+              )}
+            </div>
+          </div>
           <button
             onClick={signOut}
             className="mt-3 flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm text-zinc-400 transition-colors hover:bg-white/5 hover:text-rose-300"
@@ -88,7 +115,22 @@ export function DashboardShell({
               <h1 className="truncate text-lg font-semibold tracking-tight text-zinc-50">{title}</h1>
               {subtitle && <p className="truncate text-xs text-zinc-500">{subtitle}</p>}
             </div>
-            <span className="font-mono text-sm font-semibold text-zinc-50 lg:hidden">
+            <div className="flex shrink-0 items-center gap-3 lg:hidden">
+              {planBadge && (
+                <span className="rounded-full border border-signal-500/40 bg-signal-500/15 px-2 py-0.5 font-mono text-[10px] font-bold text-signal-300" dir="ltr">
+                  {planBadge}
+                </span>
+              )}
+              {avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={avatarUrl} alt="" className="h-9 w-9 rounded-full border border-white/10 object-cover" />
+              ) : (
+                <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-xs text-zinc-500">
+                  {(userLabel || '؟').slice(0, 1).toUpperCase()}
+                </div>
+              )}
+            </div>
+            <span className="font-mono text-sm font-semibold text-zinc-50 hidden xl:inline">
               Trawin<span className="text-signal-500">.</span>
             </span>
           </div>

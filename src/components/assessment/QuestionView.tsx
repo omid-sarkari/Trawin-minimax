@@ -5,7 +5,7 @@
  * correct answers; every save/execute call hits the server API.
  */
 
-import { CodeEditor } from '@/components/assessment/CodeEditor'
+import { MonacoCodeEditor } from '@/components/assessment/MonacoCodeEditor'
 import type { ClientQuestion, ClientAnswerEcho } from '@/lib/assessment/types'
 
 export type AnswerDraft = Record<string, unknown>
@@ -210,7 +210,7 @@ function CodeView({
         </div>
       )}
 
-      <CodeEditor value={code} onChange={update} language={question.language} />
+      <MonacoCodeEditor value={code} onChange={update} language={question.language} />
     </div>
   )
 }
