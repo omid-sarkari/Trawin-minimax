@@ -1,36 +1,39 @@
 {
-  "name": "trawin",
-  "version": "0.1.0",
+  "name": "trawin-minimax",
+  "version": "1.0.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint",
-    "type-check": "tsc --noEmit"
+  "engines": {
+    "node": ">=20.9"
   },
-  "dependencies": {
-    "@livekit/components-react": "^2.9.23",
-    "@monaco-editor/react": "^4.7.0",
-    "@supabase/ssr": "^0.5.2",
-    "@supabase/supabase-js": "^2.45.0",
-    "livekit-client": "^2.21.0",
-    "next": "16.2.12",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "y-monaco": "^0.1.6",
-    "y-websocket": "^3.0.0",
-    "yjs": "^13.6.31",
-    "zod": "^3.23.8"
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "next dev --hostname localhost",
+    "build": "npm run build --workspaces",
+    "build:behavior-intelligence": "npm run build --workspace=behavior-intelligence",
+    "test": "jest && npm run test --workspaces",
+    "test:runtime": "jest",
+    "test:behavior-intelligence": "npm run test --workspace=behavior-intelligence"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.12",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^26.2.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "jest": "^29.7.0",
+    "postcss": "^8.5.26",
+    "tailwindcss": "^4.3.3",
+    "ts-jest": "^29.4.12",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
+    "@supabase/ssr": "^0.12.4",
+    "@supabase/supabase-js": "^2.112.3",
+    "next": "^16.3.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
   }
 }

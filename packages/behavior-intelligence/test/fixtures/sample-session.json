@@ -1,0 +1,16 @@
+{
+  "sessionId": "sample-session-001",
+  "engineVersion": "bi-v1.0.0",
+  "editorEvents": [
+    {"id": 1, "sessionId": "sample-session-001", "eventType": "insertText", "payload": {"text": "function test() {", "position": 0}, "createdAt": "2024-01-15T10:00:00.000Z"},
+    {"id": 2, "sessionId": "sample-session-001", "eventType": "insertText", "payload": {"text": "  return true;", "position": 15}, "createdAt": "2024-01-15T10:00:01.000Z"},
+    {"id": 3, "sessionId": "sample-session-001", "eventType": "insertText", "payload": {"text": "}", "position": 27}, "createdAt": "2024-01-15T10:00:02.000Z"}
+  ],
+  "codingEvents": [{"id": 1, "codingSessionId": "sample-session-001", "eventType": "run", "source": "client", "metadata": {"language": "javascript"}, "createdAt": "2024-01-15T10:01:00.000Z"}],
+  "clipboardMarkers": [],
+  "snapshots": [{"id": "snap-1", "codingSessionId": "sample-session-001", "snapshotKind": "periodic", "content": {}, "filePath": "test.js", "language": "javascript", "baseHash": null, "sourceHash": null, "eventType": null, "createdAt": "2024-01-15T10:00:03.000Z"}],
+  "ruleConfig": [
+    {"ruleId": 1, "ruleName": "high_paste_ratio", "version": 1, "condition": {"detector": "paste_ratio", "operator": "gte", "value": 0.7}, "action": {"weight": 0.3, "flag": "large_external_paste_ratio"}},
+    {"ruleId": 2, "ruleName": "burst_insertion", "version": 1, "condition": {"detector": "burst_insertion", "operator": "gte", "value": 0.5}, "action": {"weight": 0.25, "flag": "unnatural_insertion_speed"}}
+  ]
+}

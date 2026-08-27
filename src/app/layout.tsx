@@ -18,13 +18,17 @@ const vazirmatn = Vazirmatn({
 });
 
 export const metadata: Metadata = {
-  title: "Trawin — پلتفرم ارزیابی، مسابقه و استخدام برنامه‌نویسان",
+  title: {
+    default: "Trawin — اثبات واقعی مهارت برنامه‌نویسی",
+    template: "%s | Trawin",
+  },
   description:
-    "Trawin؛ مطمئن‌ترین پلتفرم ارزیابی مهارت برنامه‌نویسی در ایران و فارسی‌زبان. آزمون، مسابقه، رزومه زنده و استخدام.",
+    "Trawin توانایی واقعی برنامه‌نویس را با آزمون تطبیقی، رفتارشناسی کد و رزومه زنده اثبات می‌کند؛ و شرکت‌ها را با مهارتِ اثبات‌شده — نه ادعا — به توسعه‌دهندگان وصل می‌کند.",
   keywords: [
     "Trawin",
     "ترافین",
     "ارزیابی برنامه‌نویس",
+    "آزمون برنامه‌نویسی",
     "مسابقه برنامه‌نویسی",
     "استخدام برنامه‌نویس",
     "رزومه زنده",
@@ -40,9 +44,9 @@ export default function RootLayout({
     <html
       lang="fa"
       dir="rtl"
-      className={`${geistSans.variable} ${geistMono.variable} ${vazirmatn.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${vazirmatn.variable} h-full scroll-smooth antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+      <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );
 }

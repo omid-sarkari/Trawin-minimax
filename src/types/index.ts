@@ -1,61 +1,66 @@
 /**
  * Domain Types
  *
- * Trawin domain types. Aligned with the 58-table schema in
- * docs/trawin-architecture.md. Replace with generated Supabase types as
- * features land.
+ * Aligned with the generated Supabase contract (src/types/database.ts) and the
+ * authoritative question contracts (src/lib/admin/question-contracts.ts).
+ * Identity rule: application tables reference public.users.id — never auth.uid().
  */
 
-// Roles defined in `roles` table
+// Role values stored in public.users.role (CHECK constraint)
 export type UserRole = "developer" | "company" | "admin";
 
 export type Profile = {
   id: string;
+  user_id: string | null;
+  email: string | null;
   full_name: string | null;
-  username: string | null;
-  city: string | null;
-  bio: string | null;
+  role_id: number | null;
   avatar_url: string | null;
-  created_at: string;
+  bio: string | null;
+  country: string | null;
+  experience_years: number | null;
+  created_at: string | null;
+  updated_at: string | null;
 };
 
 export type Company = {
   id: string;
   name: string;
-  slug: string;
+  slug: string | null;
   description: string | null;
   website: string | null;
-  city: string | null;
-  created_at: string;
+  created_at: string | null;
 };
 
-export type QuestionType = "multiple_choice" | "fill_blank" | "code" | "essay";
-export type Difficulty = "easy" | "medium" | "hard" | "challenge";
+// Numeric difficulty stored in questions.difficulty (1..5)
+export type Difficulty = 1 | 2 | 3 | 4 | 5;
+
+export type QuestionType =
+  | "multiple_choice"
+  | "fill_blank"
+  | "coding"
+  | "open_ended"
+  | "debugging";
 
 export type Exam = {
-  id: string;
+  id: number;
+  slug: string;
   title: string;
   description: string | null;
-  duration_minutes: number;
-  starts_at: string | null;
-  ends_at: string | null;
-  created_at: string;
+  duration_minutes: number | null;
+  engine_version: string | null;
+  status: string | null;
+  track_id: number | null;
+  created_at: string | null;
+  updated_at: string | null;
 };
 
-export type CodingEventType =
-  | "paste"
-  | "copy"
-  | "cut"
-  | "undo"
-  | "run"
-  | "submit"
-  | "blur";
-
+// Mirrors public.coding_events
 export type CodingEvent = {
-  id: string;
-  session_id: string;
-  user_id: string;
-  type: CodingEventType;
-  payload: Record<string, unknown> | null;
-  occurred_at: string;
+  id: number;
+  coding_session_id: string;
+  event_type: string;
+  source: string;
+  metadata: Record<string, unknown>;
+  created_at: string;
 };

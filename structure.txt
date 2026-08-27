@@ -1,0 +1,533 @@
+.
+├── ./.env.example
+├── ./.env.local
+├── ./.github
+│   └── ./.github/workflows
+│       └── ./.github/workflows/ci.yml
+├── ./.gitignore
+├── ./.next
+│   └── ./.next/dev
+│       ├── ./.next/dev/build
+│       │   ├── ./.next/dev/build/chunks
+│       │   │   ├── ./.next/dev/build/chunks/[root-of-the-server]__05i36w1._.js
+│       │   │   ├── ./.next/dev/build/chunks/[root-of-the-server]__05i36w1._.js.map
+│       │   │   ├── ./.next/dev/build/chunks/[root-of-the-server]__1kki86f._.js
+│       │   │   ├── ./.next/dev/build/chunks/[root-of-the-server]__1kki86f._.js.map
+│       │   │   ├── ./.next/dev/build/chunks/[turbopack-node]_transforms_postcss_ts_1gfkiq9._.js
+│       │   │   ├── ./.next/dev/build/chunks/[turbopack-node]_transforms_postcss_ts_1gfkiq9._.js.map
+│       │   │   ├── ./.next/dev/build/chunks/[turbopack]_runtime.js
+│       │   │   ├── ./.next/dev/build/chunks/[turbopack]_runtime.js.map
+│       │   │   ├── ./.next/dev/build/chunks/node_modules_20v-8wl._.js
+│       │   │   ├── ./.next/dev/build/chunks/node_modules_20v-8wl._.js.map
+│       │   │   ├── ./.next/dev/build/chunks/pool_entry-[turbopack-node]_transforms_postcss_ts_0tp-k2v._.js
+│       │   │   └── ./.next/dev/build/chunks/pool_entry-[turbopack-node]_transforms_postcss_ts_0tp-k2v._.js.map
+│       │   └── ./.next/dev/build/package.json
+│       ├── ./.next/dev/build-manifest.json
+│       ├── ./.next/dev/cache
+│       │   ├── ./.next/dev/cache/.rscinfo
+│       │   ├── ./.next/dev/cache/next-devtools-config.json
+│       │   └── ./.next/dev/cache/turbopack
+│       │       └── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000001.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000002.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000004.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000005.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000006.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000008.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000012.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000014.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000015.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000016.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000017.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000018.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000023.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000025.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000026.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000027.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000028.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000029.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000032.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000033.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000034.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000035.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000036.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000037.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000039.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000040.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000041.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000043.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000044.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000045.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000046.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000047.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000048.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000049.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000050.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000052.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000053.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000054.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000055.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000056.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000057.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000058.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000059.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000060.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000061.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000062.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000063.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000064.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000065.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000066.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000067.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000068.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000069.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000070.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000071.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000072.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000073.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000074.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000075.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000076.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000077.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000078.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000079.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000080.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000081.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000082.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000083.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000084.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000085.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000086.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000087.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000088.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000089.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000090.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000091.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000092.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000093.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000094.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000095.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000096.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000097.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000098.sst
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000099.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000100.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/00000101.meta
+│       │           ├── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/CURRENT
+│       │           └── ./.next/dev/cache/turbopack/v16.3.1-3d32eb87/LOG
+│       ├── ./.next/dev/fallback-build-manifest.json
+│       ├── ./.next/dev/lock
+│       ├── ./.next/dev/logs
+│       │   └── ./.next/dev/logs/next-development.log
+│       ├── ./.next/dev/package.json
+│       ├── ./.next/dev/prerender-manifest.json
+│       ├── ./.next/dev/routes-manifest.json
+│       ├── ./.next/dev/server
+│       │   ├── ./.next/dev/server/app
+│       │   │   ├── ./.next/dev/server/app/(auth)
+│       │   │   │   ├── ./.next/dev/server/app/(auth)/login
+│       │   │   │   │   ├── ./.next/dev/server/app/(auth)/login/page
+│       │   │   │   │   │   ├── ./.next/dev/server/app/(auth)/login/page/app-paths-manifest.json
+│       │   │   │   │   │   ├── ./.next/dev/server/app/(auth)/login/page/build-manifest.json
+│       │   │   │   │   │   ├── ./.next/dev/server/app/(auth)/login/page/client-components-ssr.js
+│       │   │   │   │   │   ├── ./.next/dev/server/app/(auth)/login/page/next-font-manifest.json
+│       │   │   │   │   │   ├── ./.next/dev/server/app/(auth)/login/page/react-loadable-manifest.json
+│       │   │   │   │   │   └── ./.next/dev/server/app/(auth)/login/page/server-reference-manifest.json
+│       │   │   │   │   ├── ./.next/dev/server/app/(auth)/login/page.js
+│       │   │   │   │   ├── ./.next/dev/server/app/(auth)/login/page.js.map
+│       │   │   │   │   └── ./.next/dev/server/app/(auth)/login/page_client-reference-manifest.js
+│       │   │   │   └── ./.next/dev/server/app/(auth)/register
+│       │   │   │       ├── ./.next/dev/server/app/(auth)/register/page
+│       │   │   │       │   ├── ./.next/dev/server/app/(auth)/register/page/app-paths-manifest.json
+│       │   │   │       │   ├── ./.next/dev/server/app/(auth)/register/page/build-manifest.json
+│       │   │   │       │   ├── ./.next/dev/server/app/(auth)/register/page/client-components-ssr.js
+│       │   │   │       │   ├── ./.next/dev/server/app/(auth)/register/page/next-font-manifest.json
+│       │   │   │       │   ├── ./.next/dev/server/app/(auth)/register/page/react-loadable-manifest.json
+│       │   │   │       │   └── ./.next/dev/server/app/(auth)/register/page/server-reference-manifest.json
+│       │   │   │       ├── ./.next/dev/server/app/(auth)/register/page.js
+│       │   │   │       ├── ./.next/dev/server/app/(auth)/register/page.js.map
+│       │   │   │       └── ./.next/dev/server/app/(auth)/register/page_client-reference-manifest.js
+│       │   │   ├── ./.next/dev/server/app/_not-found
+│       │   │   │   ├── ./.next/dev/server/app/_not-found/page
+│       │   │   │   │   ├── ./.next/dev/server/app/_not-found/page/app-paths-manifest.json
+│       │   │   │   │   ├── ./.next/dev/server/app/_not-found/page/build-manifest.json
+│       │   │   │   │   ├── ./.next/dev/server/app/_not-found/page/client-components-ssr.js
+│       │   │   │   │   ├── ./.next/dev/server/app/_not-found/page/next-font-manifest.json
+│       │   │   │   │   ├── ./.next/dev/server/app/_not-found/page/react-loadable-manifest.json
+│       │   │   │   │   └── ./.next/dev/server/app/_not-found/page/server-reference-manifest.json
+│       │   │   │   ├── ./.next/dev/server/app/_not-found/page.js
+│       │   │   │   ├── ./.next/dev/server/app/_not-found/page.js.map
+│       │   │   │   └── ./.next/dev/server/app/_not-found/page_client-reference-manifest.js
+│       │   │   ├── ./.next/dev/server/app/page
+│       │   │   │   ├── ./.next/dev/server/app/page/app-paths-manifest.json
+│       │   │   │   ├── ./.next/dev/server/app/page/build-manifest.json
+│       │   │   │   ├── ./.next/dev/server/app/page/client-components-ssr.js
+│       │   │   │   ├── ./.next/dev/server/app/page/next-font-manifest.json
+│       │   │   │   ├── ./.next/dev/server/app/page/react-loadable-manifest.json
+│       │   │   │   └── ./.next/dev/server/app/page/server-reference-manifest.json
+│       │   │   ├── ./.next/dev/server/app/page.js
+│       │   │   ├── ./.next/dev/server/app/page.js.map
+│       │   │   └── ./.next/dev/server/app/page_client-reference-manifest.js
+│       │   ├── ./.next/dev/server/app-paths-manifest.json
+│       │   ├── ./.next/dev/server/chunks
+│       │   │   └── ./.next/dev/server/chunks/ssr
+│       │   │       ├── ./.next/dev/server/chunks/ssr/[externals]__05yr04l._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/[externals]__05yr04l._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/[externals]__0mly4vc._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/[externals]__0mly4vc._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/[externals]__1vp7etu._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/[externals]__1vp7etu._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/[externals]_next_dist_1e1zfvs._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/[externals]_next_dist_1e1zfvs._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/[root-of-the-server]__00s9kxz._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/[root-of-the-server]__00s9kxz._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/[root-of-the-server]__09x-cth._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/[root-of-the-server]__09x-cth._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/[root-of-the-server]__0hmgsoy._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/[root-of-the-server]__0hmgsoy._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/[root-of-the-server]__0y0_snu._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/[root-of-the-server]__0y0_snu._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/[root-of-the-server]__1qq_xp6._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/[root-of-the-server]__1qq_xp6._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/[root-of-the-server]__2077u_h._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/[root-of-the-server]__2077u_h._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/[turbopack]_runtime.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/[turbopack]_runtime.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/_next-internal_server_app_(auth)_login_page_actions_1jr42c1.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/_next-internal_server_app_(auth)_login_page_actions_1jr42c1.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/_next-internal_server_app_(auth)_register_page_actions_04l6fhn.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/_next-internal_server_app_(auth)_register_page_actions_04l6fhn.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/_next-internal_server_app__not-found_page_actions_0pt47yr.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/_next-internal_server_app__not-found_page_actions_0pt47yr.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/_next-internal_server_app_page_actions_0hhsz1j.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/_next-internal_server_app_page_actions_0hhsz1j.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_01xbj_9._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_01xbj_9._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_02es85m._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_02es85m._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_0tpw8kq._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_0tpw8kq._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_1_aarlg._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_1_aarlg._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_1f9_7tc._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_1f9_7tc._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_1j-r64f._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_1j-r64f._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_@supabase_auth-js_dist_module_1z23ps2._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_@supabase_auth-js_dist_module_1z23ps2._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_next_1_o5zxs._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_next_1_o5zxs._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_next_1dvvrz0._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_next_1dvvrz0._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_next_dist_0254xxt._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_next_dist_0254xxt._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_next_dist_13rd9n8._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_next_dist_13rd9n8._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_next_dist_1enk-kb._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_next_dist_1enk-kb._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_next_dist_1ngrq0_._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_next_dist_1ngrq0_._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_next_dist_client_components_0wpq8j3._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_next_dist_client_components_0wpq8j3._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_next_dist_client_components_builtin_forbidden_0symwr9.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_next_dist_client_components_builtin_forbidden_0symwr9.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_next_dist_client_components_builtin_global-error_0-o-goa.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_next_dist_client_components_builtin_global-error_0-o-goa.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_next_dist_client_components_builtin_unauthorized_0l_sp0x.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_next_dist_client_components_builtin_unauthorized_0l_sp0x.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_next_dist_compiled_0d323sd._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_next_dist_compiled_0d323sd._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_next_dist_esm_1ivs2qn._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_next_dist_esm_1ivs2qn._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_next_dist_server_route-modules_app-page_0qo_rmc._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/node_modules_next_dist_server_route-modules_app-page_0qo_rmc._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/src_079fdlu._.js
+│       │   │       ├── ./.next/dev/server/chunks/ssr/src_079fdlu._.js.map
+│       │   │       ├── ./.next/dev/server/chunks/ssr/src_12ed587._.js
+│       │   │       └── ./.next/dev/server/chunks/ssr/src_12ed587._.js.map
+│       │   ├── ./.next/dev/server/edge
+│       │   │   └── ./.next/dev/server/edge/chunks
+│       │   │       ├── ./.next/dev/server/edge/chunks/[root-of-the-server]__0lwcf8h._.js
+│       │   │       ├── ./.next/dev/server/edge/chunks/[root-of-the-server]__0lwcf8h._.js.map
+│       │   │       ├── ./.next/dev/server/edge/chunks/node_modules_15bcvgq._.js
+│       │   │       ├── ./.next/dev/server/edge/chunks/node_modules_15bcvgq._.js.map
+│       │   │       ├── ./.next/dev/server/edge/chunks/node_modules_@supabase_auth-js_dist_module_0focj3n._.js
+│       │   │       ├── ./.next/dev/server/edge/chunks/node_modules_@supabase_auth-js_dist_module_0focj3n._.js.map
+│       │   │       ├── ./.next/dev/server/edge/chunks/node_modules_next_dist_1b23hhn._.js
+│       │   │       ├── ./.next/dev/server/edge/chunks/node_modules_next_dist_1b23hhn._.js.map
+│       │   │       ├── ./.next/dev/server/edge/chunks/node_modules_next_dist_esm_build_templates_edge-wrapper_0f3hl51.js.map
+│       │   │       └── ./.next/dev/server/edge/chunks/turbopack-node_modules_next_dist_esm_build_templates_edge-wrapper_0f3hl51.js
+│       │   ├── ./.next/dev/server/interception-route-rewrite-manifest.js
+│       │   ├── ./.next/dev/server/middleware
+│       │   │   └── ./.next/dev/server/middleware/middleware-manifest.json
+│       │   ├── ./.next/dev/server/middleware-build-manifest.js
+│       │   ├── ./.next/dev/server/middleware-manifest.json
+│       │   ├── ./.next/dev/server/next-font-manifest.js
+│       │   ├── ./.next/dev/server/next-font-manifest.json
+│       │   ├── ./.next/dev/server/pages
+│       │   │   ├── ./.next/dev/server/pages/_app
+│       │   │   │   ├── ./.next/dev/server/pages/_app/build-manifest.json
+│       │   │   │   ├── ./.next/dev/server/pages/_app/client-build-manifest.json
+│       │   │   │   ├── ./.next/dev/server/pages/_app/next-font-manifest.json
+│       │   │   │   ├── ./.next/dev/server/pages/_app/pages-manifest.json
+│       │   │   │   └── ./.next/dev/server/pages/_app/react-loadable-manifest.json
+│       │   │   ├── ./.next/dev/server/pages/_app.js
+│       │   │   ├── ./.next/dev/server/pages/_app.js.map
+│       │   │   ├── ./.next/dev/server/pages/_document
+│       │   │   │   ├── ./.next/dev/server/pages/_document/next-font-manifest.json
+│       │   │   │   ├── ./.next/dev/server/pages/_document/pages-manifest.json
+│       │   │   │   └── ./.next/dev/server/pages/_document/react-loadable-manifest.json
+│       │   │   ├── ./.next/dev/server/pages/_document.js
+│       │   │   ├── ./.next/dev/server/pages/_document.js.map
+│       │   │   ├── ./.next/dev/server/pages/_error
+│       │   │   │   ├── ./.next/dev/server/pages/_error/build-manifest.json
+│       │   │   │   ├── ./.next/dev/server/pages/_error/client-build-manifest.json
+│       │   │   │   ├── ./.next/dev/server/pages/_error/next-font-manifest.json
+│       │   │   │   ├── ./.next/dev/server/pages/_error/pages-manifest.json
+│       │   │   │   └── ./.next/dev/server/pages/_error/react-loadable-manifest.json
+│       │   │   ├── ./.next/dev/server/pages/_error.js
+│       │   │   └── ./.next/dev/server/pages/_error.js.map
+│       │   ├── ./.next/dev/server/pages-manifest.json
+│       │   ├── ./.next/dev/server/server-reference-manifest.js
+│       │   └── ./.next/dev/server/server-reference-manifest.json
+│       ├── ./.next/dev/static
+│       │   ├── ./.next/dev/static/chunks
+│       │   │   ├── ./.next/dev/static/chunks/[next]_entry_page-loader_ts_0z3haqk._.js
+│       │   │   ├── ./.next/dev/static/chunks/[next]_entry_page-loader_ts_0z3haqk._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/[next]_entry_page-loader_ts_1aoli7m._.js
+│       │   │   ├── ./.next/dev/static/chunks/[next]_entry_page-loader_ts_1aoli7m._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/[next]_internal_font_google_geist_a71539c9_module_css_1igg3k2._.single.css
+│       │   │   ├── ./.next/dev/static/chunks/[next]_internal_font_google_geist_a71539c9_module_css_1igg3k2._.single.css.map
+│       │   │   ├── ./.next/dev/static/chunks/[next]_internal_font_google_geist_mono_8d43a2aa_module_css_1igg3k2._.single.css
+│       │   │   ├── ./.next/dev/static/chunks/[next]_internal_font_google_geist_mono_8d43a2aa_module_css_1igg3k2._.single.css.map
+│       │   │   ├── ./.next/dev/static/chunks/[next]_internal_font_google_vazirmatn_e8bde4d7_module_css_1igg3k2._.single.css
+│       │   │   ├── ./.next/dev/static/chunks/[next]_internal_font_google_vazirmatn_e8bde4d7_module_css_1igg3k2._.single.css.map
+│       │   │   ├── ./.next/dev/static/chunks/[root-of-the-server]__02sxxph._.js
+│       │   │   ├── ./.next/dev/static/chunks/[root-of-the-server]__02sxxph._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/[root-of-the-server]__0l4r13l._.js
+│       │   │   ├── ./.next/dev/static/chunks/[root-of-the-server]__0l4r13l._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/[root-of-the-server]__1t4bysx._.css
+│       │   │   ├── ./.next/dev/static/chunks/[root-of-the-server]__1t4bysx._.css.map
+│       │   │   ├── ./.next/dev/static/chunks/[turbopack]_browser_dev_hmr-client_hmr-client_ts_1di75ot._.js
+│       │   │   ├── ./.next/dev/static/chunks/[turbopack]_browser_dev_hmr-client_hmr-client_ts_1di75ot._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/[turbopack]_browser_dev_hmr-client_hmr-client_ts_1mojsay._.js
+│       │   │   ├── ./.next/dev/static/chunks/[turbopack]_browser_dev_hmr-client_hmr-client_ts_1mojsay._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/_078delp._.js
+│       │   │   ├── ./.next/dev/static/chunks/_08bm286._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/_0mc45lb._.js
+│       │   │   ├── ./.next/dev/static/chunks/_18x7jxu._.js
+│       │   │   ├── ./.next/dev/static/chunks/_1anvha4._.js
+│       │   │   ├── ./.next/dev/static/chunks/_219uq1s._.js
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_0q602ju._.js
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_0q602ju._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_10e2-xo._.js
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_10e2-xo._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_@swc_helpers_cjs_1r9vbqw._.js
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_@swc_helpers_cjs_1r9vbqw._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_app_0yrdk3r.js
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_app_0yrdk3r.js.map
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_00pwe04._.js
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_00pwe04._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_1atto1n._.js
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_1atto1n._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_1e8vcs8._.js
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_1e8vcs8._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_1gdrd03._.js
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_1gdrd03._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_20wefz_._.js
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_20wefz_._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_build_polyfills_polyfill-nomodule.js
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_build_polyfills_polyfill-nomodule.js.map
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_client_0_90u2t._.js
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_client_0_90u2t._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_client_16lnmlo._.js
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_client_16lnmlo._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_compiled_14ibvna._.js
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_compiled_14ibvna._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_compiled_1amofcm._.js
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_compiled_1amofcm._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_090k2jm.js.map
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_compiled_react-server-dom-turbopack_164kp-6._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_shared_lib_196_nl_._.js
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_shared_lib_196_nl_._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_shared_lib_1vsvqbg._.js
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_next_dist_shared_lib_1vsvqbg._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_react-dom_0kla17-._.js
+│       │   │   ├── ./.next/dev/static/chunks/node_modules_react-dom_0kla17-._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/pages
+│       │   │   │   ├── ./.next/dev/static/chunks/pages/_app.js
+│       │   │   │   └── ./.next/dev/static/chunks/pages/_error.js
+│       │   │   ├── ./.next/dev/static/chunks/pages__app_0du2_q-._.js
+│       │   │   ├── ./.next/dev/static/chunks/pages__app_0e7z0ug._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/pages__error_0du2_q-._.js
+│       │   │   ├── ./.next/dev/static/chunks/pages__error_1g3qll_._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/src_17c9ov8._.js
+│       │   │   ├── ./.next/dev/static/chunks/src_17c9ov8._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/src_20lok8g._.js
+│       │   │   ├── ./.next/dev/static/chunks/src_20lok8g._.js.map
+│       │   │   ├── ./.next/dev/static/chunks/src_app_globals_css_1igg3k2._.single.css
+│       │   │   ├── ./.next/dev/static/chunks/src_app_globals_css_1igg3k2._.single.css.map
+│       │   │   ├── ./.next/dev/static/chunks/turbopack-_08bm286._.js
+│       │   │   ├── ./.next/dev/static/chunks/turbopack-pages__app_0e7z0ug._.js
+│       │   │   └── ./.next/dev/static/chunks/turbopack-pages__error_1g3qll_._.js
+│       │   ├── ./.next/dev/static/development
+│       │   │   ├── ./.next/dev/static/development/_buildManifest.js
+│       │   │   ├── ./.next/dev/static/development/_clientMiddlewareManifest.js
+│       │   │   └── ./.next/dev/static/development/_ssgManifest.js
+│       │   └── ./.next/dev/static/media
+│       │       ├── ./.next/dev/static/media/3be67f396f7d45c3-s.10ayu6ka6csf1.woff2
+│       │       ├── ./.next/dev/static/media/4fa387ec64143e14-s.2tuy5pz7dlieh.woff2
+│       │       ├── ./.next/dev/static/media/53b9e256198e5412-s.390ncx5urfkfu.woff2
+│       │       ├── ./.next/dev/static/media/5ce348bf30bf5439-s.31988l_ccedte.woff2
+│       │       ├── ./.next/dev/static/media/6306c77e7c8268e4-s.2dbetqa9o8jxf.woff2
+│       │       ├── ./.next/dev/static/media/7178b3e590c64307-s.21jp631_3pja2.woff2
+│       │       ├── ./.next/dev/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2
+│       │       ├── ./.next/dev/static/media/7d817b4c03b0c5f1-s.1uyisp29ctx0d.woff2
+│       │       ├── ./.next/dev/static/media/8a480f0b521d4e75-s.1qq4vpdcun5oj.woff2
+│       │       ├── ./.next/dev/static/media/bbc41e54d2fcbd21-s.1rgnod-3esatf.woff2
+│       │       ├── ./.next/dev/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2
+│       │       ├── ./.next/dev/static/media/ec8f59eafded4799-s.p.2avnhkksosb5d.woff2
+│       │       ├── ./.next/dev/static/media/f1d25eabcf1db66d-s.p.21se6xk6bxqs6.woff2
+│       │       ├── ./.next/dev/static/media/favicon.2vob68tjqpejf.ico
+│       │       └── ./.next/dev/static/media/fef07dbb0973bf53-s.3p2_lha1f2xer.woff2
+│       ├── ./.next/dev/trace
+│       └── ./.next/dev/types
+│           ├── ./.next/dev/types/cache-life.d.ts
+│           ├── ./.next/dev/types/root-params.d.ts
+│           ├── ./.next/dev/types/routes.d.ts
+│           └── ./.next/dev/types/validator.ts
+├── ./AGENTS.md
+├── ./BRANCH_README.md
+├── ./CLAUDE.md
+├── ./README.md
+├── ./TRAWIN_MASTER_CONTEXT.md
+├── ./eslint.config.mjs
+├── ./memory-don.md
+├── ./middleware.ts
+├── ./next-env.d.ts
+├── ./next.config.ts
+├── ./package-lock.json
+├── ./package.json
+├── ./packages
+│   └── ./packages/behavior-intelligence
+│       ├── ./packages/behavior-intelligence/jest.config.js
+│       ├── ./packages/behavior-intelligence/package.json
+│       ├── ./packages/behavior-intelligence/src
+│       │   ├── ./packages/behavior-intelligence/src/brain
+│       │   │   ├── ./packages/behavior-intelligence/src/brain/config.ts
+│       │   │   ├── ./packages/behavior-intelligence/src/brain/index.ts
+│       │   │   └── ./packages/behavior-intelligence/src/brain/types.ts
+│       │   ├── ./packages/behavior-intelligence/src/detectors
+│       │   │   ├── ./packages/behavior-intelligence/src/detectors/burst-insertion.detector.ts
+│       │   │   ├── ./packages/behavior-intelligence/src/detectors/edit-locality.detector.ts
+│       │   │   ├── ./packages/behavior-intelligence/src/detectors/index.ts
+│       │   │   ├── ./packages/behavior-intelligence/src/detectors/paste-ratio.detector.ts
+│       │   │   └── ./packages/behavior-intelligence/src/detectors/typing-rhythm.detector.ts
+│       │   ├── ./packages/behavior-intelligence/src/engine
+│       │   │   ├── ./packages/behavior-intelligence/src/engine/aggregate.ts
+│       │   │   ├── ./packages/behavior-intelligence/src/engine/index.ts
+│       │   │   ├── ./packages/behavior-intelligence/src/engine/run-behavior-analysis.ts
+│       │   │   └── ./packages/behavior-intelligence/src/engine/run-engine.ts
+│       │   ├── ./packages/behavior-intelligence/src/index.ts
+│       │   ├── ./packages/behavior-intelligence/src/lib
+│       │   │   └── ./packages/behavior-intelligence/src/lib/behavior-intelligence-adapter
+│       │   │       └── ./packages/behavior-intelligence/src/lib/behavior-intelligence-adapter/nextjs.adapter.ts
+│       │   ├── ./packages/behavior-intelligence/src/types
+│       │   │   ├── ./packages/behavior-intelligence/src/types/adapter.ts
+│       │   │   ├── ./packages/behavior-intelligence/src/types/detector.ts
+│       │   │   ├── ./packages/behavior-intelligence/src/types/engine.ts
+│       │   │   ├── ./packages/behavior-intelligence/src/types/raw-events.ts
+│       │   │   └── ./packages/behavior-intelligence/src/types/rules.ts
+│       │   └── ./packages/behavior-intelligence/src/utils
+│       │       ├── ./packages/behavior-intelligence/src/utils/diff.ts
+│       │       ├── ./packages/behavior-intelligence/src/utils/stats.ts
+│       │       └── ./packages/behavior-intelligence/src/utils/time.ts
+│       ├── ./packages/behavior-intelligence/test
+│       │   └── ./packages/behavior-intelligence/test/fixtures
+│       │       └── ./packages/behavior-intelligence/test/fixtures/sample-session.json
+│       ├── ./packages/behavior-intelligence/test-push.txt
+│       └── ./packages/behavior-intelligence/tsconfig.json
+├── ./postcss.config.mjs
+├── ./public
+│   ├── ./public/file.svg
+│   ├── ./public/globe.svg
+│   ├── ./public/next.svg
+│   ├── ./public/vercel.svg
+│   └── ./public/window.svg
+├── ./src
+│   ├── ./src/app
+│   │   ├── ./src/app/(auth)
+│   │   │   ├── ./src/app/(auth)/login
+│   │   │   │   └── ./src/app/(auth)/login/page.tsx
+│   │   │   └── ./src/app/(auth)/register
+│   │   │       └── ./src/app/(auth)/register/page.tsx
+│   │   ├── ./src/app/api
+│   │   │   ├── ./src/app/api/check-plagiarism
+│   │   │   │   └── ./src/app/api/check-plagiarism/route.ts
+│   │   │   ├── ./src/app/api/execute-code
+│   │   │   │   └── ./src/app/api/execute-code/route.ts
+│   │   │   └── ./src/app/api/proctoring
+│   │   │       └── ./src/app/api/proctoring/session
+│   │   │           └── ./src/app/api/proctoring/session/route.ts
+│   │   ├── ./src/app/favicon.ico
+│   │   ├── ./src/app/globals.css
+│   │   ├── ./src/app/layout.tsx
+│   │   └── ./src/app/page.tsx
+│   ├── ./src/brain
+│   │   ├── ./src/brain/config.ts
+│   │   ├── ./src/brain/index.ts
+│   │   └── ./src/brain/types.ts
+│   ├── ./src/components
+│   │   ├── ./src/components/code-editor
+│   │   │   ├── ./src/components/code-editor/CodeEditorToolbar.tsx
+│   │   │   ├── ./src/components/code-editor/LanguageSelector.tsx
+│   │   │   ├── ./src/components/code-editor/MonacoEditor.tsx
+│   │   │   └── ./src/components/code-editor/index.ts
+│   │   └── ./src/components/video
+│   │       ├── ./src/components/video/LiveKitRoom.tsx
+│   │       ├── ./src/components/video/VideoControls.tsx
+│   │       └── ./src/components/video/index.ts
+│   ├── ./src/lib
+│   │   ├── ./src/lib/behavior-intelligence-adapter
+│   │   │   ├── ./src/lib/behavior-intelligence-adapter/map-rows.ts
+│   │   │   ├── ./src/lib/behavior-intelligence-adapter/nextjs.adapter.ts
+│   │   │   └── ./src/lib/behavior-intelligence-adapter/trigger-route.ts
+│   │   ├── ./src/lib/building-blocks
+│   │   │   ├── ./src/lib/building-blocks/registry.ts
+│   │   │   └── ./src/lib/building-blocks/types.ts
+│   │   ├── ./src/lib/services
+│   │   │   ├── ./src/lib/services/jplag.ts
+│   │   │   ├── ./src/lib/services/judge0.ts
+│   │   │   ├── ./src/lib/services/livekit.ts
+│   │   │   └── ./src/lib/services/openproctor.ts
+│   │   └── ./src/lib/supabase
+│   │       ├── ./src/lib/supabase/client.ts
+│   │       ├── ./src/lib/supabase/middleware.ts
+│   │       └── ./src/lib/supabase/server.ts
+│   ├── ./src/services
+│   │   ├── ./src/services/auth.service.ts
+│   │   └── ./src/services/resume
+│   │       ├── ./src/services/resume/resume-builder.ts
+│   │       └── ./src/services/resume/resume-storage.ts
+│   └── ./src/types
+│       ├── ./src/types/database.ts
+│       ├── ./src/types/index.ts
+│       └── ./src/types/resume
+│           ├── ./src/types/resume/base.ts
+│           ├── ./src/types/resume/company-resume.ts
+│           ├── ./src/types/resume/config.ts
+│           └── ./src/types/resume/user-resume.ts
+├── ./structure.txt
+├── ./supabase
+│   └── ./supabase/migrations
+│       └── ./supabase/migrations/20260729100000_create_auth_trigger.sql
+├── ./test-Qwen
+│   └── ./test-Qwen/.gitkeep
+├── ./tsconfig.json
+└── ./tsconfig.tsbuildinfo
+
+75 directories, 456 files
